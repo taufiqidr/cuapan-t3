@@ -1,10 +1,36 @@
-import { signIn, signOut } from "next-auth/react";
-import React from "react";
-import { type Session } from "next-auth";
-interface Props {
-  session: Session | null;
-}
-const SidebarRight = ({ session }: Props) => {
+import { useTheme } from "next-themes";
+import React, { useEffect, useState } from "react";
+import { BsSunFill, BsMoonFill } from "react-icons/bs";
+
+const SidebarRight = () => {
+  const { systemTheme, theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  const renderThemeChanger = () => {
+    if (!mounted) return null;
+    const currentTheme = theme === "system" ? systemTheme : theme;
+
+    if (currentTheme === "dark") {
+      return (
+        <BsSunFill
+          className="h-10 w-10 text-yellow-500 "
+          role="button"
+          onClick={() => setTheme("light")}
+        />
+      );
+    } else {
+      return (
+        <BsMoonFill
+          className="h-10 w-10 text-gray-900 "
+          role="button"
+          onClick={() => setTheme("dark")}
+        />
+      );
+    }
+  };
   return (
     <div className="sticky top-0 h-screen w-3/12">
       <div className="mx-auto mt-1 flex w-11/12 flex-col">
@@ -13,23 +39,10 @@ const SidebarRight = ({ session }: Props) => {
           className=" w-full rounded-full bg-slate-700 py-2 px-6"
           placeholder="Search"
         />
-        <div className="mt-3 h-60 w-full rounded-lg bg-slate-700">
-          {!session && (
-            <div
-              onClick={() => signIn("discord")}
-              className="mx-3 mt-3 cursor-pointer rounded-full bg-blue-600 px-3 py-2 text-center text-xl font-semibold hover:bg-blue-500"
-            >
-              Login with Discord
-            </div>
-          )}
-          {session && (
-            <div
-              onClick={() => signOut()}
-              className="mx-3 mt-3 cursor-pointer rounded-full bg-blue-600 px-3 py-2 text-center text-xl font-semibold hover:bg-blue-500"
-            >
-              Logout
-            </div>
-          )}
+        <div className="mt-3 flex h-60 w-full rounded-lg bg-slate-700">
+          <div className="mt-auto h-12 w-full cursor-pointer bg-red-700">
+            {renderThemeChanger()}
+          </div>
         </div>
       </div>
     </div>

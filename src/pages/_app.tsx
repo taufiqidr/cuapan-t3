@@ -7,7 +7,7 @@ import { trpc } from "../utils/trpc";
 import "../styles/globals.css";
 import Layout from "../../components/layout";
 import Head from "next/head";
-
+import { ThemeProvider } from "next-themes";
 const MyApp: AppType<{ session: Session | null }> = ({
   Component,
   pageProps: { session, ...pageProps },
@@ -19,9 +19,11 @@ const MyApp: AppType<{ session: Session | null }> = ({
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>Cauapan 2.0</title>
       </Head>
-      <Layout>
-        <Component {...pageProps} />
-      </Layout>
+      <ThemeProvider enableSystem={true} attribute="class">
+        <Layout>
+          <Component {...pageProps} />
+        </Layout>
+      </ThemeProvider>
     </SessionProvider>
   );
 };

@@ -9,8 +9,10 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="mx-10 flex flex-row justify-between">
       <SidebarLeft session={session} />
-      <main className="w-6/12">{children}</main>
-      <SidebarRight session={session} />
+      <main className="min-h-screen w-6/12 border-x border-slate-500">
+        {children}
+      </main>
+      <SidebarRight />
     </div>
   );
 };
