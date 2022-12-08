@@ -33,15 +33,15 @@ const SidebarRight = () => {
   };
   return (
     <div className="sticky top-0 h-screen w-3/12">
-      <div className="mx-auto mt-1 flex w-11/12 flex-col">
+      <div className="mx-auto  flex w-11/12 flex-col ">
         <input
           type="text"
-          className=" w-full rounded-full bg-slate-700 py-2 px-6"
+          className="mt-2 w-full rounded-full   bg-slate-700 py-2.5 px-6"
           placeholder="Search"
         />
         <div className="mt-3 flex h-60 w-full rounded-lg bg-slate-700">
-          <div className="mt-auto h-12 w-full cursor-pointer bg-red-700">
-            {renderThemeChanger()}
+          <div className="mt-auto flex h-12 w-full cursor-pointer border bg-gray-50 dark:bg-slate-500">
+            <div className="m-auto">{renderThemeChanger()}</div>
           </div>
         </div>
       </div>

@@ -1,5 +1,7 @@
+import HomePageComp from "../../components/home/HomePage";
+
 const Home = () => {
-  return <div className=""></div>;
+  return <HomePageComp />;
 };
 
 export default Home;
