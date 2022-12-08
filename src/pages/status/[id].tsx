@@ -15,7 +15,7 @@ const StatusPage = () => {
         </div>
         <div className="ml-3">Status</div>
       </div>
-      <div className="mx-3 mt-3 flex flex-col ">
+      <div className="mx-3 mt-6 flex flex-col ">
         <div className="flex flex-row">
           <div className="h-16 w-16 flex-none rounded-full bg-blue-500"></div>
           <div className="ml-3 flex flex-col">

@@ -67,16 +67,20 @@ const SidebarLeft = ({ session }: Props) => {
           <BsMegaphoneFill />
         </h1>
         <div className="mt-4 w-full text-2xl font-semibold">
-          <div className="w-full cursor-pointer rounded-full py-2 pl-5 hover:bg-slate-700">
-            <span className="my-auto flex items-center gap-x-3">
-              <BsHouseFill /> Home
-            </span>
-          </div>
-          <div className="w-full cursor-pointer rounded-full py-2 pl-5 hover:bg-slate-700">
-            <span className="my-auto flex items-center gap-x-3">
-              <BsPersonFill /> Profile
-            </span>
-          </div>
+          <Link href={"/"}>
+            <div className="w-full cursor-pointer rounded-full py-2 pl-5 hover:bg-slate-700">
+              <span className="my-auto flex items-center gap-x-3">
+                <BsHouseFill /> Home
+              </span>
+            </div>
+          </Link>
+          <Link href={"/user/1"}>
+            <div className="w-full cursor-pointer rounded-full py-2 pl-5 hover:bg-slate-700">
+              <span className="my-auto flex items-center gap-x-3">
+                <BsPersonFill /> Profile
+              </span>
+            </div>
+          </Link>
         </div>
         <div className="mt-auto flex flex-col justify-end">
           <div
