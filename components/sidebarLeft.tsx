@@ -74,7 +74,7 @@ const SidebarLeft = ({ session }: Props) => {
               </span>
             </div>
           </Link>
-          <Link href={"/user/1"}>
+          <Link href={session?.user?.id ? "/user/" + session?.user?.id : "/"}>
             <div className="w-full cursor-pointer rounded-full py-2 pl-5 hover:bg-slate-700">
               <span className="my-auto flex items-center gap-x-3">
                 <BsPersonFill /> Profile
