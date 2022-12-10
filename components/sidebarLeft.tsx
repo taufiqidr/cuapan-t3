@@ -6,7 +6,7 @@ import { type Session } from "next-auth";
 import Link from "next/link";
 import Image from "next/image";
 interface Props {
-  session: Session | null;
+  session: Session | null | undefined;
 }
 const SidebarLeft = ({ session }: Props) => {
   const [show, setShow] = useState(true);
@@ -17,7 +17,7 @@ const SidebarLeft = ({ session }: Props) => {
   } else {
     pic = () =>
       String(
-        `https://ugulpstombooodglvogg.supabase.co/storage/v1/object/public/tokofication-image/user/${session?.user?.image}`
+        `https://wdbzaixlcvmtgkhjlkqx.supabase.co/storage/v1/object/public/cuapan-image/user/${session?.user?.image}`
       );
   }
   if (session) {
@@ -27,14 +27,14 @@ const SidebarLeft = ({ session }: Props) => {
           className="ml-5 flex h-full w-full cursor-pointer flex-row items-center rounded-full"
           onClick={() => setShow((prev) => !prev)}
         >
-          <div className="h-[36px] w-[36px] rounded-full border bg-slate-500">
+          <div className="h-[36px] w-[36px] flex-none rounded-full border bg-slate-500">
             <Image
               src={pic()}
               alt="profile pic"
               loader={pic}
               height={36}
               width={36}
-              className="h-full w-full  rounded-full border border-slate-500 object-cover hover:brightness-90"
+              className=" h-full w-full rounded-full border border-slate-500 object-cover hover:brightness-90"
               id="menu-button"
               aria-expanded="true"
               aria-haspopup="true"

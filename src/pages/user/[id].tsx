@@ -2,18 +2,17 @@ import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import { BsArrowLeft } from "react-icons/bs";
+import { BsArrowLeft, BsCameraFill } from "react-icons/bs";
 import Loading from "../../../components/Loading";
 import Status from "../../../components/status";
 import UserNotFound from "../../../components/UserNotFound";
 import { trpc } from "../../utils/trpc";
+import { v4 as uuidv4 } from "uuid";
+import { supabase } from "../../utils/supabase";
 
 const UserPage = () => {
-  const router = useRouter();
-  const [modalHidden, setModalHidden] = useState(true);
-  const { data: session } = useSession();
-  const id = useRouter().query.id;
   const [userId, setUserId] = useState("");
+  const id = useRouter().query.id;
 
   const { data, isLoading } = trpc.user.getOne.useQuery({
     id: userId as string,
@@ -23,135 +22,299 @@ const UserPage = () => {
     if (id) setUserId(String(id));
   }, [id]);
 
+  const router = useRouter();
+  const [modalHidden, setModalHidden] = useState(true);
+  const { data: session } = useSession();
+
+  const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
+  const [bio, setBio] = useState("");
+
+  const image_name = uuidv4() + ".jpg";
+  const old_image = data?.image;
+  const [image, setImage] = useState("");
+  const [imageFile, setImageFile] = useState<File | undefined>();
+
+  const coverImage_name = uuidv4() + ".jpg";
+  const old_coverImage = data?.coverImage;
+  const [coverImage, setCoverImage] = useState("");
+  const [coverImageFile, setCoverImageFile] = useState<File | undefined>();
+
+  useEffect(() => {
+    if (data) {
+      setName(String(data.name));
+      setUsername(String(data.username));
+      setBio(String(data.bio));
+      setImage(String(data.image));
+      setCoverImage(String(data.coverImage));
+    }
+  }, [data]);
+
+  const uploadPic = async () => {
+    await supabase.storage
+      .from("cuapan-image")
+      .upload("user/" + image_name, imageFile as File);
+  };
+
+  const deletePic = async () => {
+    await supabase.storage.from("cuapan-image").remove(["user/" + old_image]);
+  };
+  const uploadCoverPic = async () => {
+    await supabase.storage
+      .from("cuapan-image")
+      .upload("user/" + coverImage_name, coverImageFile as File);
+  };
+
+  const deleteCoverPic = async () => {
+    await supabase.storage
+      .from("cuapan-image")
+      .remove(["user/" + old_coverImage]);
+  };
+
+  const utils = trpc.useContext();
+
+  const updateUser = trpc.user.updateUser.useMutation({
+    onMutate: () => {
+      utils.user.getOne.cancel();
+      const optimisticSession = utils.auth.getSession.getData();
+      const optimisticUpdate = utils.user.getOne.getData({
+        id: userId as string,
+      });
+
+      if (optimisticSession) {
+        utils.auth.getSession.setData(undefined, {
+          ...optimisticSession,
+        });
+      }
+
+      if (optimisticUpdate) {
+        utils.user.getOne.setData(
+          {
+            id: userId as string,
+          },
+          {
+            ...optimisticUpdate,
+          }
+        );
+      }
+    },
+    onSuccess: () => {
+      utils.user.getOne.invalidate({
+        id: userId as string,
+      });
+      setModalHidden(true);
+    },
+  });
+
   if (isLoading) return <Loading />;
 
   if (!data) return <UserNotFound />;
 
-  let pic;
-  if (data?.image?.match(new RegExp("^[https]"))) {
-    pic = () => String(data?.image);
+  let pic, coverPic;
+  if (image?.match(new RegExp("^[https]"))) {
+    pic = () => String(image);
   } else {
     pic = () =>
       String(
-        `https://ugulpstombooodglvogg.supabase.co/storage/v1/object/public/tokofication-image/user/${data?.image}`
+        `https://wdbzaixlcvmtgkhjlkqx.supabase.co/storage/v1/object/public/cuapan-image/user/${image}`
       );
   }
+  if (imageFile) {
+    pic = () => URL.createObjectURL(imageFile);
+  }
+
+  if (coverImage?.match(new RegExp("^[https]"))) {
+    coverPic = () => String(coverImage);
+  } else {
+    coverPic = () =>
+      String(
+        `https://wdbzaixlcvmtgkhjlkqx.supabase.co/storage/v1/object/public/cuapan-image/user/${coverImage}`
+      );
+  }
+  if (coverImageFile) {
+    coverPic = () => URL.createObjectURL(coverImageFile);
+  }
+
   return (
-    <div
-      className={`mt-1 flex flex-col ${modalHidden ? "" : "overflow-hidden "}`}
-    >
+    <div className={`mt-1 flex flex-col `}>
       <div
         id="modal-container"
-        tabIndex={-1}
         aria-hidden="true"
         className={`fixed inset-0 z-50 bg-white/50 backdrop-blur-sm ${
           modalHidden ? "hidden" : "flex"
         }`}
       >
-        {/* <div className="relative h-full w-full"> */}
-        {/* Modal content */}
-        <div className="relative m-auto h-5/6 w-1/2 rounded-lg bg-white shadow  dark:bg-black">
-          <button
-            type="button"
-            onClick={() => setModalHidden(true)}
-            className="absolute top-3 right-2.5 ml-auto inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-800 dark:hover:text-white"
-            data-modal-toggle="authentication-modal"
-          >
-            <svg
-              aria-hidden="true"
-              className="h-5 w-5"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-              xmlns="http://www.w3.org/2000/svg"
+        <div className="relative m-auto h-5/6 w-1/2 overflow-y-scroll rounded-lg bg-white shadow dark:bg-black">
+          <div className="m-5 flex flex-col ">
+            <div className="item-center mb-3 flex justify-between">
+              <h3 className="text-xl font-medium text-gray-900 dark:text-white">
+                Edit Profile
+              </h3>
+              <button
+                type="button"
+                onClick={() => setModalHidden(true)}
+                className="items-center rounded-lg bg-transparent text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-800 dark:hover:text-white"
+                data-modal-toggle="authentication-modal"
+              >
+                <svg
+                  aria-hidden="true"
+                  className="h-5 w-5"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                <span className="sr-only">Close modal</span>
+              </button>
+            </div>
+            <form
+              className="flex flex-col gap-6"
+              onSubmit={(event) => {
+                event.preventDefault();
+                updateUser.mutate({
+                  name: String(name),
+                  bio: String(bio),
+                  username: String(username),
+                  image: imageFile ? image_name : image,
+                  coverImage: coverImageFile ? coverImage_name : coverImage,
+                });
+                if (imageFile) {
+                  deletePic();
+                  uploadPic();
+                }
+                if (coverImageFile) {
+                  deleteCoverPic();
+                  uploadCoverPic();
+                }
+              }}
             >
-              <path
-                fillRule="evenodd"
-                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                clipRule="evenodd"
-              />
-            </svg>
-            <span className="sr-only">Close modal</span>
-          </button>
-          <div className="px-6 py-6 lg:px-8">
-            <h3 className="mb-4 text-xl font-medium text-gray-900 dark:text-white">
-              Sign in to our platform
-            </h3>
-            <form className="space-y-6" action="#">
-              <div>
-                <label
-                  htmlFor="email"
-                  className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-                >
-                  Your email
-                </label>
-                <input
-                  type="email"
-                  name="email"
-                  id="email"
-                  className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-500 dark:bg-gray-600 dark:text-white dark:placeholder-gray-400"
-                  placeholder="name@company.com"
-                  required
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="password"
-                  className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
-                >
-                  Your password
-                </label>
-                <input
-                  type="password"
-                  name="password"
-                  id="password"
-                  placeholder="••••••••"
-                  className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-500 dark:bg-gray-600 dark:text-white dark:placeholder-gray-400"
-                  required
-                />
-              </div>
-              <div className="flex justify-between">
-                <div className="flex items-start">
-                  <div className="flex h-5 items-center">
-                    <input
-                      id="remember"
-                      type="checkbox"
-                      defaultValue=""
-                      className="focus:ring-3 h-4 w-4 rounded border border-gray-300 bg-gray-50 focus:ring-blue-300 dark:border-gray-500 dark:bg-gray-600 dark:ring-offset-gray-800 dark:focus:ring-blue-600"
-                      required
-                    />
-                  </div>
+              <div className="-mb-6 flex h-64 flex-col">
+                <div className="flex h-44 flex-col items-center justify-center bg-yellow-500">
+                  <Image
+                    src={coverPic()}
+                    alt="cover pic"
+                    loader={coverPic}
+                    height={240}
+                    width={240}
+                    className={`h-full w-full object-cover`}
+                    loading="lazy"
+                    unoptimized={true}
+                  ></Image>
                   <label
-                    htmlFor="remember"
-                    className="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                    htmlFor="cover_file_input"
+                    className="absolute flex h-44 w-full items-center justify-center bg-black/50 text-4xl font-medium text-white "
                   >
-                    Remember me
+                    <div className="absolute flex cursor-pointer items-center justify-center">
+                      <BsCameraFill />
+                    </div>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="absolute hidden"
+                      id="cover_file_input"
+                      onChange={(e) =>
+                        setCoverImageFile(() =>
+                          e.target.files ? e.target.files[0] : undefined
+                        )
+                      }
+                    />
                   </label>
                 </div>
-                <a
-                  href="#"
-                  className="text-sm text-blue-700 hover:underline dark:text-blue-500"
+                <div className="absolute ml-3 mt-28 flex h-32 w-32 items-center justify-center rounded-full bg-white">
+                  <Image
+                    src={pic()}
+                    alt="profile pic"
+                    loader={pic}
+                    height={240}
+                    width={240}
+                    className="m-auto h-[96%] w-[96%] rounded-full object-cover"
+                    loading="lazy"
+                    unoptimized={true}
+                  ></Image>
+                  <label
+                    htmlFor="file_input"
+                    className="absolute flex h-full w-full items-center justify-center rounded-full bg-black/50 text-4xl font-medium text-white "
+                  >
+                    <div className="absolute flex cursor-pointer items-center justify-center">
+                      <BsCameraFill />
+                    </div>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="absolute hidden"
+                      id="file_input"
+                      onChange={(e) =>
+                        setImageFile(() =>
+                          e.target.files ? e.target.files[0] : undefined
+                        )
+                      }
+                    />
+                  </label>
+                </div>
+              </div>
+              <div>
+                <label
+                  htmlFor="name"
+                  className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
                 >
-                  Lost Password?
-                </a>
+                  Name
+                </label>
+                <input
+                  type="text"
+                  id="name"
+                  className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                  placeholder="Your Name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="username"
+                  className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+                >
+                  Username
+                </label>
+                <input
+                  type="text"
+                  id="username"
+                  className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                  placeholder="Enter Username"
+                  required
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="bio"
+                  className="mb-2 block text-sm font-medium text-gray-900 dark:text-white"
+                >
+                  About
+                </label>
+                <textarea
+                  id="bio"
+                  className="block w-full resize-none rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                  placeholder="About You"
+                  value={bio}
+                  onChange={(e) => setBio(e.target.value)}
+                  rows={3}
+                />
               </div>
               <button
                 type="submit"
-                className="w-full rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                className="w-full rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 sm:w-auto"
               >
-                Login to your account
+                Save
               </button>
-              <div className="text-sm font-medium text-gray-500 dark:text-gray-300">
-                Not registered?{" "}
-                <a
-                  href="#"
-                  className="text-blue-700 hover:underline dark:text-blue-500"
-                >
-                  Create account
-                </a>
-              </div>
             </form>
           </div>
-          {/* </div> */}
         </div>
       </div>
 
@@ -164,12 +327,23 @@ const UserPage = () => {
         </div>
         <div className="ml-3 text-base">
           <div>{data?.name}</div>
-          <div className="text-slate-500">9999 status</div>
+          <div className="text-slate-500">{data.status.length} status</div>
         </div>
       </div>
 
-      <div className="flex h-64 flex-col">
-        <div className="flex h-44 flex-col bg-yellow-500"></div>
+      <div className={`flex h-64 flex-col`}>
+        <div className="flex h-44 flex-col bg-yellow-500">
+          <Image
+            src={coverPic()}
+            alt="cover pic"
+            loader={coverPic}
+            height={240}
+            width={240}
+            className={`h-full w-full object-cover`}
+            loading="lazy"
+            unoptimized={true}
+          ></Image>
+        </div>
         {session?.user?.id === data?.id && (
           <button
             onClick={() => setModalHidden(false)}
@@ -193,12 +367,9 @@ const UserPage = () => {
         </div>
       </div>
       <div className="mx-3 flex flex-col">
-        <h1 className="text-2xl font-bold">Taufiq</h1>
-        <span className="text-xl text-slate-500">@username</span>
-        <p className="mt-3">
-          Lorem, ipsum dolor sit amet consectetur adipisicing elit. Accusantium
-          repellat minima aliquam ea odio harum.
-        </p>
+        <h1 className="text-2xl font-bold">{data.name}</h1>
+        <span className="text-xl text-slate-500">@{data.username}</span>
+        <p className="mt-3">{data.bio}</p>
         <div className="flex flex-row items-center justify-start gap-x-9 py-3">
           <div className="my-auto">
             9999<span className="text-slate-500"> Followers</span>

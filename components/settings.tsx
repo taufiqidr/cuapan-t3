@@ -33,33 +33,33 @@ const SettingsPageComp = () => {
 
   const disabled = false;
 
-  const utils = trpc.useContext();
   const router = useRouter();
+  const utils = trpc.useContext();
 
-  //   const updateUser = trpc.user.updateSelfUser.useMutation({
-  //     onMutate: () => {
-  //       utils.user.getAll.cancel();
-  //       const optimisticUpdate = utils.user.getAll.getData();
+  const updateUser = trpc.user.updateSelfUser.useMutation({
+    onMutate: () => {
+      utils.user.getAll.cancel();
+      const optimisticUpdate = utils.user.getAll.getData();
 
-  //       if (optimisticUpdate) {
-  //         utils.user.getAll.setData(
-  //           undefined,
-  //           optimisticUpdate.map((t) =>
-  //             t.id === data?.id
-  //               ? {
-  //                   ...t,
-  //                   ...data,
-  //                 }
-  //               : t
-  //           )
-  //         );
-  //       }
-  //     },
-  //     onSuccess: () => {
-  //       utils.user.getAll.invalidate();
-  //       router.push(`/me`);
-  //     },
-  //   });
+      if (optimisticUpdate) {
+        utils.user.getAll.setData(
+          undefined,
+          optimisticUpdate.map((t) =>
+            t.id === data?.id
+              ? {
+                  ...t,
+                  ...data,
+                }
+              : t
+          )
+        );
+      }
+    },
+    onSuccess: () => {
+      utils.user.getAll.invalidate();
+      router.push(`/me`);
+    },
+  });
 
   let pic;
 
