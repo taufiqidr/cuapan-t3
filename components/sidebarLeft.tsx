@@ -22,7 +22,7 @@ const SidebarLeft = ({ session }: Props) => {
   }
   if (session) {
     user_menu = (
-      <div className="mt-auto mb-3 flex h-14 w-full cursor-pointer items-center rounded-full hover:bg-slate-700">
+      <div className="mt-auto mb-3 flex h-14 w-full cursor-pointer items-center rounded-full border border-slate-500 hover:bg-slate-700 ">
         <div
           className="ml-5 flex h-full w-full cursor-pointer flex-row items-center rounded-full"
           onClick={() => setShow((prev) => !prev)}
@@ -53,7 +53,7 @@ const SidebarLeft = ({ session }: Props) => {
       <div className="mt-auto mb-3 flex h-14 w-full cursor-pointer items-center rounded-full ">
         <div
           onClick={() => signIn("discord")}
-          className="mx-auto w-10/12 cursor-pointer rounded-full bg-blue-600 px-3 py-2 text-center text-xl font-semibold "
+          className="mx-auto w-10/12 cursor-pointer rounded-full bg-blue-600 px-3 py-2 text-center text-xl font-semibold text-white"
         >
           Login with Discord
         </div>

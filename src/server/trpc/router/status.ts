@@ -13,6 +13,7 @@ export const statusRouter = router({
           like: true,
           reply: true,
           user: true,
+          createdAt: true,
         },
         orderBy: {
           createdAt: "desc",
@@ -41,32 +42,7 @@ export const statusRouter = router({
             like: true,
             reply: true,
             user: true,
-          },
-        });
-      } catch (error) {
-        console.log("error", error);
-      }
-    }),
-
-  getByUser: publicProcedure
-    .input(
-      z.object({
-        userId: z.string(),
-      })
-    )
-    .query(async ({ ctx, input }) => {
-      try {
-        return await ctx.prisma.status.findMany({
-          where: {
-            userId: input.userId,
-          },
-          select: {
-            id: true,
-            text: true,
-            image: true,
-            like: true,
-            reply: true,
-            user: true,
+            createdAt: true,
           },
         });
       } catch (error) {
@@ -113,6 +89,23 @@ export const statusRouter = router({
             text: input.text,
             image: input.image,
             userId: ctx.session.user.id,
+          },
+        });
+      } catch (error) {
+        console.log("error", error);
+      }
+    }),
+  deleteStatus: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      try {
+        return await ctx.prisma.status.delete({
+          where: {
+            id: input.id,
           },
         });
       } catch (error) {

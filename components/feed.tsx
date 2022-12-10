@@ -1,13 +1,25 @@
 import React from "react";
+import { trpc } from "../src/utils/trpc";
+import Loading from "./Loading";
 import Status from "./status";
 
 const Feed = () => {
-  const n = 20; // Or something else
+  const { data, isLoading } = trpc.status.getAll.useQuery();
 
+  if (isLoading) return <Loading />;
   return (
     <div className="mt-3">
-      {[...Array(n)].map((e, i) => (
-        <Status key={i} />
+      {data?.map((status) => (
+        <Status
+          id={status.id}
+          key={status.id}
+          name={status.user.name}
+          text={status.text}
+          username={status.user.username}
+          UserImage={status.user.image}
+          image={status.image}
+          time={status.createdAt.toDateString()}
+        />
       ))}
     </div>
   );

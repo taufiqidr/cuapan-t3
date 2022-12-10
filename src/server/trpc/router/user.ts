@@ -29,29 +29,6 @@ export const userRouter = router({
         console.log("error", error);
       }
     }),
-  getProfile: publicProcedure.query(async ({ ctx }) => {
-    try {
-      return await ctx.prisma.user.findUnique({
-        where: {
-          id: ctx.session?.user?.id,
-        },
-        select: {
-          id: true,
-          name: true,
-          image: true,
-          bio: true,
-          like: true,
-          status: true,
-          reply: true,
-          coverImage: true,
-          username: true,
-          email: true,
-        },
-      });
-    } catch (error) {
-      console.log("error", error);
-    }
-  }),
   updateUser: protectedProcedure
     .input(
       z.object({

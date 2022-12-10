@@ -4,11 +4,11 @@ import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { BsArrowLeft, BsCameraFill } from "react-icons/bs";
 import Loading from "../../../components/Loading";
-import Status from "../../../components/status";
 import UserNotFound from "../../../components/UserNotFound";
 import { trpc } from "../../utils/trpc";
 import { v4 as uuidv4 } from "uuid";
 import { supabase } from "../../utils/supabase";
+import Feed from "../../../components/feed";
 
 const UserPage = () => {
   const [userId, setUserId] = useState("");
@@ -330,9 +330,8 @@ const UserPage = () => {
           <div className="text-slate-500">{data.status.length} status</div>
         </div>
       </div>
-
-      <div className={`flex h-64 flex-col`}>
-        <div className="flex h-44 flex-col bg-yellow-500">
+      <div className={`flex h-80 flex-col`}>
+        <div className="flex h-60 flex-col bg-yellow-500">
           <Image
             src={coverPic()}
             alt="cover pic"
@@ -353,7 +352,7 @@ const UserPage = () => {
           </button>
         )}
 
-        <div className="absolute ml-3 mt-28 flex h-32 w-32 items-center justify-center rounded-full bg-white">
+        <div className="absolute ml-3 mt-44 flex h-32 w-32 items-center justify-center rounded-full bg-white">
           <Image
             src={pic()}
             alt="profile pic"
@@ -383,9 +382,7 @@ const UserPage = () => {
         <div className="w-full py-3 text-center hover:bg-white/5">Status</div>
         <div className="w-full py-3 text-center hover:bg-white/5">Media</div>
       </div>
-      {[...Array(20)].map((e, i) => (
-        <Status key={i} />
-      ))}
+      <Feed />
     </div>
   );
 };

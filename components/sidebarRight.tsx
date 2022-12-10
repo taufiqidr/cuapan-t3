@@ -61,13 +61,13 @@ const SidebarRight = () => {
           <input
             type="search"
             id="search"
-            className="w-full rounded-full  bg-slate-700 py-2.5 pl-10"
+            className="w-full rounded-full border py-2.5 pl-10 dark:border-none dark:bg-slate-700"
             placeholder="Search"
           />
         </div>
 
-        <div className="mt-3 flex h-60 w-full rounded-lg bg-slate-700">
-          <div className="mt-auto flex h-12 w-full cursor-pointer border bg-gray-50 dark:bg-slate-500">
+        <div className="mt-3 flex h-60 w-full rounded-lg border dark:border-none dark:bg-slate-700">
+          <div className="mt-auto flex h-12 w-full cursor-pointer rounded-b-lg border bg-gray-50 dark:border-none dark:bg-slate-500">
             <div className="m-auto">{renderThemeChanger()}</div>
           </div>
         </div>
