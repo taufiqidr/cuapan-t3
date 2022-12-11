@@ -1,11 +1,11 @@
 import React from "react";
 
-const UserNotFound = () => {
+const NotFound = ({ message }: { message: string }) => {
   return (
     <div className="flex h-full items-center justify-center text-center text-3xl">
-      <p>User Not found</p>
+      <p>{message}</p>
     </div>
   );
 };
 
-export default UserNotFound;
+export default NotFound;

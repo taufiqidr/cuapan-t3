@@ -33,7 +33,7 @@ const Status = ({
       );
   }
   return (
-    <Link href={"/status/1" + id}>
+    <Link href={"/status/" + id}>
       <div className="flex h-36 max-h-36 w-full cursor-pointer border-t border-slate-500 hover:bg-white/5">
         <div className="mx-3 mt-3 flex h-full w-full flex-row">
           <div className="h-12 w-12 flex-none rounded-full bg-blue-500">

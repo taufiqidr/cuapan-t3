@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { BsArrowLeft, BsCameraFill } from "react-icons/bs";
 import Loading from "../../../components/Loading";
-import UserNotFound from "../../../components/UserNotFound";
+import NotFound from "../../../components/NotFound";
 import { trpc } from "../../utils/trpc";
 import { v4 as uuidv4 } from "uuid";
 import { supabase } from "../../utils/supabase";
@@ -108,7 +108,7 @@ const UserPage = () => {
 
   if (isLoading) return <Loading />;
 
-  if (!data) return <UserNotFound />;
+  if (!data) return <NotFound message="User Not Found" />;
 
   let pic, coverPic;
   if (image?.match(new RegExp("^[https]"))) {
