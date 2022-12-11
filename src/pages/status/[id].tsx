@@ -9,7 +9,7 @@ import {
   BsThreeDotsVertical,
 } from "react-icons/bs";
 import Loading from "../../../components/Loading";
-import NotFound from "../../../components/NotFound";
+import NotFound from "../../../components/notFound";
 import { trpc } from "../../utils/trpc";
 
 const StatusPage = () => {

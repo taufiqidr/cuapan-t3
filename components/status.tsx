@@ -1,3 +1,4 @@
+import { formatDistanceToNow, parseISO } from "date-fns";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
@@ -34,9 +35,15 @@ const Status = ({
         `https://wdbzaixlcvmtgkhjlkqx.supabase.co/storage/v1/object/public/cuapan-image/user/${UserImage}`
       );
   }
+  let timeAgo = "";
+  if (time) {
+    const date = parseISO(time);
+    const timePeriod = formatDistanceToNow(date);
+    timeAgo = `${timePeriod} ago`;
+  }
   return (
     <Link href={"/status/" + id}>
-      <div className="flex h-36 max-h-36 w-full cursor-pointer border-t border-slate-500 hover:bg-white/5">
+      <div className="flex h-auto max-h-36 w-full cursor-pointer border-t border-slate-500 hover:bg-white/5">
         <div className="mx-3 mt-3 flex h-full w-full flex-row">
           <div className="h-12 w-12 flex-none rounded-full bg-blue-500">
             <Image
@@ -56,7 +63,7 @@ const Status = ({
                 <span className=" mr-3 font-bold">{name}</span>
                 <span className="text-slate-500">@{username}</span>
               </Link>
-              <span className="text-slate-500">{time}</span>
+              <span className="text-slate-500">{timeAgo}</span>
             </div>
             <p className="">{text}</p>
             <div className="my-2 flex flex-row gap-x-12">

@@ -4,12 +4,17 @@ import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { BsArrowLeft, BsCameraFill } from "react-icons/bs";
 import Loading from "../../../components/Loading";
-import NotFound from "../../../components/NotFound";
+import NotFound from "../../../components/notFound";
 import { trpc } from "../../utils/trpc";
 import { v4 as uuidv4 } from "uuid";
-import { supabase } from "../../utils/supabase";
-import Feed from "../../../components/feed";
-import NewStatus from "../../../components/newstatus";
+import NewStatus from "../../../components/newStatus";
+import Status from "../../../components/status";
+import {
+  deleteCoverPic,
+  deletePic,
+  uploadCoverPic,
+  uploadPic,
+} from "../../utils/image";
 
 const UserPage = () => {
   const [userId, setUserId] = useState("");
@@ -51,26 +56,13 @@ const UserPage = () => {
     }
   }, [data]);
 
-  const uploadPic = async () => {
-    await supabase.storage
-      .from("cuapan-image")
-      .upload("user/" + image_name, imageFile as File);
-  };
-
-  const deletePic = async () => {
-    await supabase.storage.from("cuapan-image").remove(["user/" + old_image]);
-  };
-  const uploadCoverPic = async () => {
-    await supabase.storage
-      .from("cuapan-image")
-      .upload("user/" + coverImage_name, coverImageFile as File);
-  };
-
-  const deleteCoverPic = async () => {
-    await supabase.storage
-      .from("cuapan-image")
-      .remove(["user/" + old_coverImage]);
-  };
+  useEffect(() => {
+    if (!modalHidden) {
+      document.body.classList.add("overflow-hidden");
+    } else {
+      document.body.classList.remove("overflow-hidden");
+    }
+  }, [modalHidden]);
 
   const utils = trpc.useContext();
 
@@ -132,6 +124,10 @@ const UserPage = () => {
         `https://wdbzaixlcvmtgkhjlkqx.supabase.co/storage/v1/object/public/cuapan-image/user/${coverImage}`
       );
   }
+
+  if (imageFile) {
+    pic = () => URL.createObjectURL(imageFile);
+  }
   if (coverImageFile) {
     coverPic = () => URL.createObjectURL(coverImageFile);
   }
@@ -185,12 +181,12 @@ const UserPage = () => {
                   coverImage: coverImageFile ? coverImage_name : coverImage,
                 });
                 if (imageFile) {
-                  deletePic();
-                  uploadPic();
+                  deletePic(old_image);
+                  uploadPic(image_name, imageFile);
                 }
                 if (coverImageFile) {
-                  deleteCoverPic();
-                  uploadCoverPic();
+                  deleteCoverPic(old_coverImage);
+                  uploadCoverPic(coverImage_name, coverImageFile);
                 }
               }}
             >
@@ -388,7 +384,21 @@ const UserPage = () => {
         <div className="w-full py-3 text-center hover:bg-white/5">Media</div>
       </div>
       {session?.user?.id === data?.id && <NewStatus />}
-      <Feed />
+      <div className="mt-3">
+        {data?.status.map((status) => (
+          <Status
+            id={status.id}
+            key={status.id}
+            name={data.name}
+            text={status.text}
+            username={data.username}
+            UserImage={data.image}
+            userId={data.id}
+            image={status.image}
+            time={status.createdAt.toISOString()}
+          />
+        ))}
+      </div>
     </div>
   );
 };

@@ -19,7 +19,7 @@ const Feed = () => {
           UserImage={status.user.image}
           userId={status.user.id}
           image={status.image}
-          time={status.createdAt.toDateString()}
+          time={status.createdAt.toISOString()}
         />
       ))}
     </div>
