@@ -8,6 +8,7 @@ interface Props {
   name?: string | null;
   username?: string | null;
   UserImage?: string | null;
+  userId?: string | null;
 
   time?: string;
   text?: string;
@@ -20,6 +21,7 @@ const Status = ({
   text,
   time,
   image,
+  userId,
   UserImage,
 }: Props) => {
   let pic;
@@ -50,8 +52,10 @@ const Status = ({
           </div>
           <div className="ml-3 flex flex-col">
             <div className="flex items-center gap-x-3">
-              <span className=" font-bold">{name}</span>
-              <span className="text-slate-500">@{username}</span>
+              <Link href={`/user/${userId}`} className="hover:text-blue-500">
+                <span className=" mr-3 font-bold">{name}</span>
+                <span className="text-slate-500">@{username}</span>
+              </Link>
               <span className="text-slate-500">{time}</span>
             </div>
             <p className="">{text}</p>

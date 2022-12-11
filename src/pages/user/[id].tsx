@@ -9,6 +9,7 @@ import { trpc } from "../../utils/trpc";
 import { v4 as uuidv4 } from "uuid";
 import { supabase } from "../../utils/supabase";
 import Feed from "../../../components/feed";
+import NewStatus from "../../../components/newstatus";
 
 const UserPage = () => {
   const [userId, setUserId] = useState("");
@@ -26,27 +27,27 @@ const UserPage = () => {
   const [modalHidden, setModalHidden] = useState(true);
   const { data: session } = useSession();
 
-  const [name, setName] = useState("");
-  const [username, setUsername] = useState("");
-  const [bio, setBio] = useState("");
+  const [name, setName] = useState<string | null>("");
+  const [username, setUsername] = useState<string | null>("");
+  const [bio, setBio] = useState<string | null>("");
 
   const image_name = uuidv4() + ".jpg";
   const old_image = data?.image;
-  const [image, setImage] = useState("");
+  const [image, setImage] = useState<string | null>("");
   const [imageFile, setImageFile] = useState<File | undefined>();
 
   const coverImage_name = uuidv4() + ".jpg";
   const old_coverImage = data?.coverImage;
-  const [coverImage, setCoverImage] = useState("");
+  const [coverImage, setCoverImage] = useState<string | null>("");
   const [coverImageFile, setCoverImageFile] = useState<File | undefined>();
 
   useEffect(() => {
     if (data) {
-      setName(String(data.name));
-      setUsername(String(data.username));
-      setBio(String(data.bio));
-      setImage(String(data.image));
-      setCoverImage(String(data.coverImage));
+      setName(data.name);
+      setUsername(data.username);
+      setBio(data.bio);
+      setImage(data.image);
+      setCoverImage(data.coverImage);
     }
   }, [data]);
 
@@ -195,16 +196,18 @@ const UserPage = () => {
             >
               <div className="-mb-6 flex h-64 flex-col">
                 <div className="flex h-44 flex-col items-center justify-center bg-yellow-500">
-                  <Image
-                    src={coverPic()}
-                    alt="cover pic"
-                    loader={coverPic}
-                    height={240}
-                    width={240}
-                    className={`h-full w-full object-cover`}
-                    loading="lazy"
-                    unoptimized={true}
-                  ></Image>
+                  <div className="h-full w-full" hidden={!Boolean(coverImage)}>
+                    <Image
+                      src={coverPic()}
+                      alt="cover pic"
+                      loader={coverPic}
+                      height={240}
+                      width={240}
+                      className={`h-full w-full object-cover`}
+                      loading="lazy"
+                      unoptimized={true}
+                    ></Image>
+                  </div>
                   <label
                     htmlFor="cover_file_input"
                     className="absolute flex h-44 w-full items-center justify-center bg-black/50 text-4xl font-medium text-white "
@@ -269,7 +272,7 @@ const UserPage = () => {
                   id="name"
                   className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                   placeholder="Your Name"
-                  value={name}
+                  value={name ? name : ""}
                   onChange={(e) => setName(e.target.value)}
                   required
                 />
@@ -287,7 +290,7 @@ const UserPage = () => {
                   className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                   placeholder="Enter Username"
                   required
-                  value={username}
+                  value={username ? username : ""}
                   onChange={(e) => setUsername(e.target.value)}
                 />
               </div>
@@ -302,7 +305,7 @@ const UserPage = () => {
                   id="bio"
                   className="block w-full resize-none rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                   placeholder="About You"
-                  value={bio}
+                  value={bio ? bio : ""}
                   onChange={(e) => setBio(e.target.value)}
                   rows={3}
                 />
@@ -332,16 +335,18 @@ const UserPage = () => {
       </div>
       <div className={`flex h-80 flex-col`}>
         <div className="flex h-60 flex-col bg-yellow-500">
-          <Image
-            src={coverPic()}
-            alt="cover pic"
-            loader={coverPic}
-            height={240}
-            width={240}
-            className={`h-full w-full object-cover`}
-            loading="lazy"
-            unoptimized={true}
-          ></Image>
+          <div className="h-full w-full" hidden={!Boolean(coverImage)}>
+            <Image
+              src={coverPic()}
+              alt="cover pic"
+              loader={coverPic}
+              height={240}
+              width={240}
+              className={`h-full w-full object-cover`}
+              loading="lazy"
+              unoptimized={true}
+            ></Image>
+          </div>
         </div>
         {session?.user?.id === data?.id && (
           <button
@@ -382,6 +387,7 @@ const UserPage = () => {
         <div className="w-full py-3 text-center hover:bg-white/5">Status</div>
         <div className="w-full py-3 text-center hover:bg-white/5">Media</div>
       </div>
+      {session?.user?.id === data?.id && <NewStatus />}
       <Feed />
     </div>
   );
