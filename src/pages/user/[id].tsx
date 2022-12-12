@@ -18,6 +18,8 @@ import {
 
 const UserPage = () => {
   const [userId, setUserId] = useState("");
+  const [media, setMedia] = useState(false);
+  const [statuses, setStatuses] = useState<JSX.Element>();
   const id = useRouter().query.id;
 
   const { data, isLoading } = trpc.user.getOne.useQuery({
@@ -46,6 +48,8 @@ const UserPage = () => {
   const [coverImage, setCoverImage] = useState<string | null>("");
   const [coverImageFile, setCoverImageFile] = useState<File | undefined>();
 
+  console.log(statuses?.props?.children);
+
   useEffect(() => {
     if (data) {
       setName(data.name);
@@ -64,6 +68,51 @@ const UserPage = () => {
     }
   }, [modalHidden]);
 
+  useEffect(() => {
+    if (!media) {
+      setStatuses(
+        <div className="mt-3">
+          {data?.status
+            .map((status) => (
+              <Status
+                id={status.id}
+                key={status.id}
+                name={data.name}
+                text={status.text}
+                username={data.username}
+                UserImage={data.image}
+                userId={data.id}
+                image={status.image}
+                time={status.createdAt.toISOString()}
+              />
+            ))
+            .reverse()}
+        </div>
+      );
+    } else {
+      setStatuses(
+        <div className="mt-3">
+          {data?.status
+            .filter((s) => Boolean(s.image) !== false)
+            .map((status) => (
+              <Status
+                id={status.id}
+                key={status.id}
+                name={data.name}
+                text={status.text}
+                username={data.username}
+                UserImage={data.image}
+                userId={data.id}
+                image={status.image}
+                time={status.createdAt.toISOString()}
+              />
+            ))
+
+            .reverse()}
+        </div>
+      );
+    }
+  }, [media, data]);
   const utils = trpc.useContext();
 
   const updateUser = trpc.user.updateUser.useMutation({
@@ -380,25 +429,25 @@ const UserPage = () => {
         </div>
       </div>
       <div className="mx-3 flex flex-row justify-between border-b">
-        <div className="w-full py-3 text-center hover:bg-white/5">Status</div>
-        <div className="w-full py-3 text-center hover:bg-white/5">Media</div>
+        <div
+          className={`${
+            !media ? "bg-white/20" : ""
+          } w-full cursor-pointer py-3 text-center hover:bg-white/50`}
+          onClick={() => setMedia(false)}
+        >
+          Status
+        </div>
+        <div
+          className={`${
+            media ? "bg-white/20" : ""
+          } w-full cursor-pointer py-3 text-center hover:bg-white/50`}
+          onClick={() => setMedia(true)}
+        >
+          Media
+        </div>
       </div>
       {session?.user?.id === data?.id && <NewStatus />}
-      <div className="mt-3">
-        {data?.status.map((status) => (
-          <Status
-            id={status.id}
-            key={status.id}
-            name={data.name}
-            text={status.text}
-            username={data.username}
-            UserImage={data.image}
-            userId={data.id}
-            image={status.image}
-            time={status.createdAt.toISOString()}
-          />
-        ))}
-      </div>
+      {statuses}
     </div>
   );
 };
