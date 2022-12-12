@@ -12,6 +12,10 @@ export const uploadStatusPic = async (image_name: string, imageFile: File) => {
     .upload("status/" + image_name, imageFile as File);
 };
 
+export const deleteStatusPic = async (old_image: string | null | undefined) => {
+  await supabase.storage.from("cuapan-image").remove(["status/" + old_image]);
+};
+
 export const deletePic = async (old_image: string | null | undefined) => {
   await supabase.storage.from("cuapan-image").remove(["user/" + old_image]);
 };

@@ -1,7 +1,6 @@
 import { formatDistanceToNow, parseISO } from "date-fns";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/router";
 import React from "react";
 import { BsChat, BsHeart } from "react-icons/bs";
 
@@ -10,7 +9,6 @@ interface Props {
   name?: string | null;
   username?: string | null;
   UserImage?: string | null;
-  userId?: string | null;
 
   time?: string;
   text?: string;
@@ -23,7 +21,6 @@ const Status = ({
   text,
   time,
   image,
-  userId,
   UserImage,
 }: Props) => {
   let pic;
@@ -70,7 +67,7 @@ const Status = ({
               <div
                 className={`${
                   image ? "flex" : "hidden"
-                }  h-96 w-full rounded-lg bg-red-500`}
+                }  mt-3 h-96 w-full rounded-lg bg-red-500`}
               >
                 <Image
                   src={`https://wdbzaixlcvmtgkhjlkqx.supabase.co/storage/v1/object/public/cuapan-image/status/${image}`}

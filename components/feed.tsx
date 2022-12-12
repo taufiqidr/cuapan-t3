@@ -17,7 +17,6 @@ const Feed = () => {
           text={status.text}
           username={status.user.username}
           UserImage={status.user.image}
-          userId={status.user.id}
           image={status.image}
           time={status.createdAt.toISOString()}
         />

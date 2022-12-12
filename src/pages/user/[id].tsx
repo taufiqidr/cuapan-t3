@@ -81,7 +81,6 @@ const UserPage = () => {
                 text={status.text}
                 username={data.username}
                 UserImage={data.image}
-                userId={data.id}
                 image={status.image}
                 time={status.createdAt.toISOString()}
               />
@@ -102,7 +101,6 @@ const UserPage = () => {
                 text={status.text}
                 username={data.username}
                 UserImage={data.image}
-                userId={data.id}
                 image={status.image}
                 time={status.createdAt.toISOString()}
               />

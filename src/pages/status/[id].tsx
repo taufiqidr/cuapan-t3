@@ -6,27 +6,37 @@ import {
   BsArrowLeft,
   BsChat,
   BsHeart,
+  BsImage,
   BsThreeDotsVertical,
+  BsXLg,
 } from "react-icons/bs";
 import Loading from "../../../components/Loading";
 import NotFound from "../../../components/notFound";
 import { trpc } from "../../utils/trpc";
+import { v4 as uuidv4 } from "uuid";
+import { deleteStatusPic, uploadStatusPic } from "../../utils/image";
 
 const StatusPage = () => {
   const router = useRouter();
   const [statusId, setStatusId] = useState("");
-  const [text, setText] = useState("");
-  const [command, setCommand] = useState("");
-  const [isMounted, setIsMounted] = useState(false);
-  const [show, setShow] = useState(true);
-  const [modalHidden, setModalHidden] = useState(true);
-  const id = useRouter().query.id;
 
   const { data, isLoading, isSuccess } = trpc.status.getOne.useQuery({
     id: statusId as string,
   });
 
   const { data: session } = useSession();
+
+  const [text, setText] = useState("");
+  const [image, setImage] = useState("");
+  const [imageFile, setImageFile] = useState<File | undefined>();
+  const image_name = uuidv4() + ".jpg";
+  const old_image = data?.image;
+
+  const [command, setCommand] = useState("");
+  const [isMounted, setIsMounted] = useState(false);
+  const [show, setShow] = useState(true);
+  const [modalHidden, setModalHidden] = useState(true);
+  const id = useRouter().query.id;
 
   const utils = trpc.useContext();
 
@@ -48,23 +58,6 @@ const StatusPage = () => {
   });
 
   const updateStatus = trpc.status.updateStatus.useMutation({
-    onMutate: () => {
-      utils.status.getOne.cancel();
-      const optimisticUpdate = utils.status.getOne.getData({
-        id: statusId as string,
-      });
-
-      if (optimisticUpdate) {
-        utils.status.getOne.setData(
-          {
-            id: statusId as string,
-          },
-          {
-            ...optimisticUpdate,
-          }
-        );
-      }
-    },
     onSuccess: () => {
       utils.status.getOne.invalidate({
         id: statusId as string,
@@ -79,14 +72,38 @@ const StatusPage = () => {
   }, [id]);
 
   useEffect(() => {
-    if (data) setText(data.text);
+    if (data) {
+      setText(data.text);
+      if (data.image) {
+        setImage(data.image);
+      }
+    }
   }, [data]);
 
   if (isLoading) return <Loading />;
 
   if (!data && isMounted) return <NotFound message="Status Not Found" />;
 
-  let pic, content, modalContent;
+  let pic, statusPic, content, modalContent;
+
+  if (data?.user.image?.match(new RegExp("^[https]"))) {
+    pic = () => String(data?.user.image);
+  } else {
+    pic = () =>
+      String(
+        `https://wdbzaixlcvmtgkhjlkqx.supabase.co/storage/v1/object/public/cuapan-image/user/${data?.user.image}`
+      );
+  }
+
+  if (image) {
+    statusPic = () =>
+      String(
+        `https://wdbzaixlcvmtgkhjlkqx.supabase.co/storage/v1/object/public/cuapan-image/status/${image}`
+      );
+  }
+  if (imageFile) {
+    statusPic = () => URL.createObjectURL(imageFile);
+  }
 
   if (command === "edit") {
     modalContent = (
@@ -125,8 +142,15 @@ const StatusPage = () => {
               updateStatus.mutate({
                 id: statusId,
                 text: String(text),
-                image: "",
+                image: imageFile ? image_name : image,
               });
+              if (image === "") {
+                deleteStatusPic(old_image);
+              }
+              if (imageFile) {
+                deleteStatusPic(old_image);
+                uploadStatusPic(image_name, imageFile);
+              }
             }}
           >
             <div>
@@ -145,6 +169,57 @@ const StatusPage = () => {
                 rows={3}
                 required
               />
+              <div
+                className={`${
+                  image || imageFile ? "flex" : "hidden"
+                } mt-3 h-60 flex-col items-center justify-center rounded-lg`}
+              >
+                <div className="flex h-full w-full">
+                  {statusPic && (
+                    <Image
+                      src={statusPic()}
+                      alt="status pic"
+                      loader={statusPic}
+                      height={120}
+                      width={120}
+                      className="h-full w-full rounded-lg object-cover"
+                      loading="lazy"
+                    ></Image>
+                  )}
+                  <div
+                    className="absolute mt-1 ml-1 cursor-pointer rounded-full border bg-black/50 p-2 hover:bg-black/80"
+                    onClick={() => {
+                      setImageFile(undefined);
+                      setImage("");
+                    }}
+                  >
+                    <BsXLg />
+                  </div>
+                </div>
+              </div>
+              <div className="ml-3 mt-3 flex justify-between">
+                <div className="flex items-center text-xl">
+                  <label
+                    htmlFor="file_input"
+                    className="flex items-center justify-center"
+                  >
+                    <div className="absolute mt-3 flex cursor-pointer items-center justify-center">
+                      <BsImage />
+                    </div>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="absolute hidden"
+                      id="file_input"
+                      onChange={(e) =>
+                        setImageFile(() =>
+                          e.target.files ? e.target.files[0] : undefined
+                        )
+                      }
+                    />
+                  </label>
+                </div>
+              </div>
             </div>
             <button
               type="submit"
@@ -195,6 +270,7 @@ const StatusPage = () => {
                   deleteStatus.mutate({
                     id: statusId,
                   });
+                  if (old_image) deleteStatusPic(old_image);
                 }}
               >
                 Yes
@@ -212,14 +288,6 @@ const StatusPage = () => {
     );
   }
 
-  if (data?.user.image?.match(new RegExp("^[https]"))) {
-    pic = () => String(data?.user.image);
-  } else {
-    pic = () =>
-      String(
-        `https://wdbzaixlcvmtgkhjlkqx.supabase.co/storage/v1/object/public/cuapan-image/user/${data?.user.image}`
-      );
-  }
   if (isSuccess) {
     content = (
       <div className="mt-1 flex flex-col py-1 ">
@@ -301,7 +369,27 @@ const StatusPage = () => {
             </div>
           </div>
           <div className="mt-3 flex flex-col font-medium">
-            <p className="">{data?.text}</p>
+            <div className="flex flex-col">
+              <p className="break-all">{data?.text}</p>
+              <div
+                className={`${
+                  image ? "flex" : "hidden"
+                }  mt-3 h-96 w-full rounded-lg bg-red-500`}
+              >
+                <Image
+                  src={`https://wdbzaixlcvmtgkhjlkqx.supabase.co/storage/v1/object/public/cuapan-image/status/${image}`}
+                  alt="status image"
+                  loader={() =>
+                    `https://wdbzaixlcvmtgkhjlkqx.supabase.co/storage/v1/object/public/cuapan-image/status/${image}`
+                  }
+                  height={60}
+                  width={60}
+                  className="m-auto h-full w-full rounded-lg object-cover"
+                  loading="lazy"
+                  unoptimized={true}
+                ></Image>
+              </div>
+            </div>
             <p className="my-3 text-slate-500">
               {data?.createdAt.toDateString()}
             </p>
