@@ -10,7 +10,12 @@ export const statusRouter = router({
           id: true,
           text: true,
           image: true,
-          like: true,
+          like: {
+            select: {
+              id: true,
+              userId: true,
+            },
+          },
           reply: true,
           user: true,
           createdAt: true,
@@ -70,7 +75,6 @@ export const statusRouter = router({
         console.log(error);
       }
     }),
-
   updateStatus: protectedProcedure
     .input(
       z.object({
@@ -104,6 +108,42 @@ export const statusRouter = router({
     .mutation(async ({ ctx, input }) => {
       try {
         return await ctx.prisma.status.delete({
+          where: {
+            id: input.id,
+          },
+        });
+      } catch (error) {
+        console.log("error", error);
+      }
+    }),
+
+  likeStatus: protectedProcedure
+    .input(
+      z.object({
+        statusId: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      try {
+        return await ctx.prisma.like.create({
+          data: {
+            statusId: input.statusId,
+            userId: ctx.session.user.id,
+          },
+        });
+      } catch (error) {
+        console.log("error", error);
+      }
+    }),
+  dislikeStatus: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      try {
+        return await ctx.prisma.like.delete({
           where: {
             id: input.id,
           },
