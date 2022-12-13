@@ -19,7 +19,22 @@ export const userRouter = router({
             image: true,
             bio: true,
             like: true,
-            status: true,
+            status: {
+              select: {
+                id: true,
+                text: true,
+                image: true,
+                like: {
+                  select: {
+                    id: true,
+                    userId: true,
+                  },
+                },
+                reply: true,
+                user: true,
+                createdAt: true,
+              },
+            },
             reply: true,
             coverImage: true,
             username: true,

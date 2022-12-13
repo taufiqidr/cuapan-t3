@@ -6,6 +6,7 @@ import {
   BsArrowLeft,
   BsChat,
   BsHeart,
+  BsHeartFill,
   BsImage,
   BsThreeDotsVertical,
   BsXLg,
@@ -15,18 +16,28 @@ import NotFound from "../../../components/notFound";
 import { trpc } from "../../utils/trpc";
 import { v4 as uuidv4 } from "uuid";
 import { deleteStatusPic, uploadStatusPic } from "../../utils/image";
+import Link from "next/link";
 
 const StatusPage = () => {
   const router = useRouter();
   const [statusId, setStatusId] = useState("");
+  const [userId, setUserId] = useState("");
 
   const { data, isLoading, isSuccess } = trpc.status.getOne.useQuery({
     id: statusId as string,
   });
 
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
 
   const [text, setText] = useState("");
+  const [userLike, setUserLike] = useState<boolean>(false);
+  const [likeData, setLikeData] = useState<
+    {
+      id: string;
+      userId: string;
+    }[]
+  >([]);
+  const [likeCount, setLikeCount] = useState<number>(0);
   const [image, setImage] = useState("");
   const [imageFile, setImageFile] = useState<File | undefined>();
   const image_name = uuidv4() + ".jpg";
@@ -74,11 +85,82 @@ const StatusPage = () => {
   useEffect(() => {
     if (data) {
       setText(data.text);
+      setUserId(data.user.id);
+      setLikeData(data.like.filter((s) => s.userId === session?.user?.id));
+      setUserLike(
+        Boolean(data.like.filter((s) => s.userId === session?.user?.id).length)
+      );
+      setLikeCount(data.like.length);
       if (data.image) {
         setImage(data.image);
       }
     }
-  }, [data]);
+  }, [data, session?.user?.id]);
+
+  const likeStatus = trpc.status.likeStatus.useMutation({
+    onMutate: () => {
+      utils.status.getAll.cancel();
+      const optimisticUpdate = utils.status.getAll.getData();
+      if (optimisticUpdate) {
+        utils.status.getAll.setData(undefined, [...optimisticUpdate]);
+      }
+    },
+    onSuccess: () => {
+      utils.status.getAll.invalidate();
+      setLikeCount(likeCount + 1);
+      setUserLike(true);
+    },
+  });
+
+  const dislikeStatus = trpc.status.dislikeStatus.useMutation({
+    onMutate: () => {
+      utils.status.getAll.cancel();
+      const optimisticUpdate = utils.status.getAll.getData();
+
+      if (optimisticUpdate) {
+        utils.status.getAll.setData(undefined, [...optimisticUpdate]);
+      }
+    },
+    onSuccess: () => {
+      utils.status.getAll.invalidate();
+      setLikeCount(likeCount - 1);
+      setUserLike(false);
+    },
+  });
+
+  let likeGroup;
+
+  if (status === "authenticated") {
+    likeGroup = (
+      <div
+        className={`${userLike ? "text-red-500" : ""} cursor-pointer `}
+        onClick={() => {
+          if (!userLike) {
+            likeStatus.mutate({
+              statusId: statusId,
+            });
+          } else {
+            dislikeStatus.mutate({
+              id: String(likeData[0]?.id),
+            });
+          }
+        }}
+      >
+        {userLike ? <BsHeartFill /> : <BsHeart />}{" "}
+      </div>
+    );
+  } else if (status === "unauthenticated") {
+    likeGroup = (
+      <div
+        className={`${userLike ? "text-red-500" : ""} cursor-pointer `}
+        onClick={() => {
+          setUserLike((prev) => !prev);
+        }}
+      >
+        {userLike ? <BsHeartFill /> : <BsHeart />}{" "}
+      </div>
+    );
+  }
 
   if (isLoading) return <Loading />;
 
@@ -312,22 +394,28 @@ const StatusPage = () => {
         <div className="mx-3 mt-6 flex flex-col ">
           <div className="flex flex-row">
             <div className="h-16 w-16 flex-none rounded-full bg-blue-500">
-              <Image
-                src={pic()}
-                alt="profile pic"
-                loader={pic}
-                height={60}
-                width={60}
-                className="m-auto h-full w-full rounded-full object-cover"
-                loading="lazy"
-                unoptimized={true}
-              ></Image>
+              <Link href={"/user/" + userId}>
+                <Image
+                  src={pic()}
+                  alt="profile pic"
+                  loader={pic}
+                  height={60}
+                  width={60}
+                  className="m-auto h-full w-full rounded-full object-cover"
+                  loading="lazy"
+                  unoptimized={true}
+                ></Image>
+              </Link>
             </div>
             <div className="flex w-full flex-row justify-between">
-              <div className="ml-3 flex flex-col">
-                <span className=" font-bold">{data?.user.name}</span>
-                <span className="text-slate-500">@{data?.user.username}</span>
-              </div>
+              <Link href={"/user/" + userId}>
+                <div className="ml-3 flex flex-col">
+                  <span className=" font-bold hover:text-blue-500">
+                    {data?.user.name}
+                  </span>
+                  <span className="text-slate-500">@{data?.user.username}</span>
+                </div>
+              </Link>
               {session?.user?.id === data?.user.id && (
                 <div className="">
                   <div
@@ -385,7 +473,7 @@ const StatusPage = () => {
                   height={60}
                   width={60}
                   className="m-auto h-full w-full rounded-lg object-cover"
-                  loading="lazy"
+                  priority={true}
                   unoptimized={true}
                 ></Image>
               </div>
@@ -398,12 +486,14 @@ const StatusPage = () => {
                 9999<span className="text-slate-500"> Reply</span>
               </div>
               <div className="my-auto">
-                9999<span className="text-slate-500"> Likes</span>
+                {likeCount}
+                <span className="text-slate-500"> Likes</span>
               </div>
             </div>
             <div className="flex flex-row items-center justify-evenly border-y py-3 ">
               <BsChat />
-              <BsHeart />
+
+              {likeGroup}
             </div>
           </div>
         </div>

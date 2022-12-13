@@ -44,7 +44,12 @@ export const statusRouter = router({
             id: true,
             text: true,
             image: true,
-            like: true,
+            like: {
+              select: {
+                id: true,
+                userId: true,
+              },
+            },
             reply: true,
             user: true,
             createdAt: true,

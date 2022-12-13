@@ -25,8 +25,9 @@ const Feed = () => {
             status.like.filter((s) => s.userId === session?.user?.id).length
           )}
           likeData={status.like.filter((s) => s.userId === session?.user?.id)}
-          session={loginStatus}
           likeCount={status.like.length}
+          session={loginStatus}
+          userId={status.user.id}
         />
       ))}
     </div>

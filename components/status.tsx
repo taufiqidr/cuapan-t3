@@ -20,6 +20,7 @@ interface Props {
   }[];
   session: string;
   likeCount: number;
+  userId: string;
 }
 const Status = ({
   id,
@@ -28,6 +29,7 @@ const Status = ({
   text,
   time,
   image,
+  userId,
   UserImage,
   userLike,
   likeData,
@@ -73,7 +75,7 @@ const Status = ({
   if (session === "authenticated") {
     likeGroup = (
       <div
-        className={`${like ? "text-red-500" : ""}  `}
+        className={`${like ? "text-red-500" : ""} cursor-pointer `}
         onClick={() => {
           if (!like) {
             likeStatus.mutate({
@@ -92,7 +94,7 @@ const Status = ({
   } else if (session === "unauthenticated") {
     likeGroup = (
       <div
-        className={`${like ? "text-red-500" : ""}  `}
+        className={`${like ? "text-red-500" : ""}  cursor-pointer`}
         onClick={() => {
           setLike((prev) => !prev);
         }}
@@ -117,51 +119,53 @@ const Status = ({
     timeAgo = `${timePeriod} ago`;
   }
   return (
-    // <Link href={"/status/" + id}>
-    <div className="flex h-auto w-full cursor-pointer border-t border-slate-500 hover:bg-white/5">
-      <div className="mx-3 flex h-full w-full flex-row py-2">
+    <div className="flex h-auto w-full border-t border-slate-500 hover:bg-white/5">
+      <article className="mx-3 flex h-full w-full flex-row py-2">
         <div className="h-12 w-12 flex-none rounded-full bg-blue-500">
-          <Image
-            src={pic()}
-            alt="profile pic"
-            loader={pic}
-            height={60}
-            width={60}
-            className="m-auto h-full w-full rounded-full object-cover"
-            loading="lazy"
-            unoptimized={true}
-          ></Image>
+          <Link href={"/user/" + userId}>
+            <Image
+              src={pic()}
+              alt="profile pic"
+              loader={pic}
+              height={60}
+              width={60}
+              className="m-auto h-full w-full rounded-full object-cover"
+              loading="lazy"
+              unoptimized={true}
+            ></Image>
+          </Link>
         </div>
         <div className="ml-3 flex flex-col">
           <div className="flex items-center gap-x-3">
-            <div className="hover:text-blue-500">
+            <Link href={"/user/" + userId} className="hover:text-blue-500">
               <span className=" mr-3 font-bold">{name}</span>
               <span className="text-slate-500">@{username}</span>
-            </div>
+            </Link>
             <span className="text-slate-500">{timeAgo}</span>
           </div>
-          <div className="flex flex-col">
-            <p className="break-all">{text}</p>
-            <div
-              className={`${
-                image ? "flex" : "hidden"
-              }  mt-3 h-96 w-full rounded-lg bg-red-500`}
-            >
-              <Image
-                src={`https://wdbzaixlcvmtgkhjlkqx.supabase.co/storage/v1/object/public/cuapan-image/status/${image}`}
-                alt="status image"
-                loader={() =>
-                  `https://wdbzaixlcvmtgkhjlkqx.supabase.co/storage/v1/object/public/cuapan-image/status/${image}`
-                }
-                height={60}
-                width={60}
-                className="m-auto h-full w-full rounded-lg object-cover"
-                loading="lazy"
-                unoptimized={true}
-              ></Image>
+          <Link href={"/status/" + id}>
+            <div className="flex flex-col">
+              <p className="break-all">{text}</p>
+              <div
+                className={`${
+                  image ? "flex" : "hidden"
+                }  mt-3 h-96 w-full rounded-lg bg-red-500`}
+              >
+                <Image
+                  src={`https://wdbzaixlcvmtgkhjlkqx.supabase.co/storage/v1/object/public/cuapan-image/status/${image}`}
+                  alt="status image"
+                  loader={() =>
+                    `https://wdbzaixlcvmtgkhjlkqx.supabase.co/storage/v1/object/public/cuapan-image/status/${image}`
+                  }
+                  height={60}
+                  width={60}
+                  className="m-auto h-full w-full rounded-lg object-cover"
+                  loading="lazy"
+                  unoptimized={true}
+                ></Image>
+              </div>
             </div>
-          </div>
-
+          </Link>
           <div className="mt-3 flex flex-row items-center gap-x-12 text-sm text-slate-500">
             <div className="flex items-center gap-x-3">
               <div className="">
@@ -175,9 +179,8 @@ const Status = ({
             </div>
           </div>
         </div>
-      </div>
+      </article>
     </div>
-    // </Link>
   );
 };
 

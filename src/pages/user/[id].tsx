@@ -32,7 +32,7 @@ const UserPage = () => {
 
   const router = useRouter();
   const [modalHidden, setModalHidden] = useState(true);
-  const { data: session } = useSession();
+  const { data: session, status: LoginStatus } = useSession();
 
   const [name, setName] = useState<string | null>("");
   const [username, setUsername] = useState<string | null>("");
@@ -47,8 +47,6 @@ const UserPage = () => {
   const old_coverImage = data?.coverImage;
   const [coverImage, setCoverImage] = useState<string | null>("");
   const [coverImageFile, setCoverImageFile] = useState<File | undefined>();
-
-  console.log(statuses?.props?.children);
 
   useEffect(() => {
     if (data) {
@@ -83,6 +81,16 @@ const UserPage = () => {
                 UserImage={data.image}
                 image={status.image}
                 time={status.createdAt.toISOString()}
+                userLike={Boolean(
+                  status.like.filter((s) => s.userId === session?.user?.id)
+                    .length
+                )}
+                likeData={status.like.filter(
+                  (s) => s.userId === session?.user?.id
+                )}
+                likeCount={status.like.length}
+                session={LoginStatus}
+                userId={status.user.id}
               />
             ))
             .reverse()}
@@ -103,6 +111,16 @@ const UserPage = () => {
                 UserImage={data.image}
                 image={status.image}
                 time={status.createdAt.toISOString()}
+                userLike={Boolean(
+                  status.like.filter((s) => s.userId === session?.user?.id)
+                    .length
+                )}
+                likeData={status.like.filter(
+                  (s) => s.userId === session?.user?.id
+                )}
+                likeCount={status.like.length}
+                session={LoginStatus}
+                userId={status.user.id}
               />
             ))
 
@@ -110,7 +128,7 @@ const UserPage = () => {
         </div>
       );
     }
-  }, [media, data]);
+  }, [media, data, LoginStatus, session?.user?.id]);
   const utils = trpc.useContext();
 
   const updateUser = trpc.user.updateUser.useMutation({
@@ -242,7 +260,7 @@ const UserPage = () => {
                   <div className="h-full w-full" hidden={!Boolean(coverImage)}>
                     <Image
                       src={coverPic()}
-                      alt="cover pic"
+                      alt="edit cover pic"
                       loader={coverPic}
                       height={240}
                       width={240}
@@ -274,7 +292,7 @@ const UserPage = () => {
                 <div className="absolute ml-3 mt-28 flex h-32 w-32 items-center justify-center rounded-full bg-white">
                   <Image
                     src={pic()}
-                    alt="profile pic"
+                    alt="edit profile pic"
                     loader={pic}
                     height={240}
                     width={240}
