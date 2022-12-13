@@ -18,6 +18,8 @@ interface Props {
     id: string;
     userId: string;
   }[];
+  session: string;
+  likeCount: number;
 }
 const Status = ({
   id,
@@ -29,6 +31,8 @@ const Status = ({
   UserImage,
   userLike,
   likeData,
+  session,
+  likeCount,
 }: Props) => {
   let pic;
 
@@ -63,6 +67,40 @@ const Status = ({
       setLike(false);
     },
   });
+
+  let likeGroup;
+
+  if (session === "authenticated") {
+    likeGroup = (
+      <div
+        className={`${like ? "text-red-500" : ""}  `}
+        onClick={() => {
+          if (!like) {
+            likeStatus.mutate({
+              statusId: id,
+            });
+          } else {
+            dislikeStatus.mutate({
+              id: String(likeData[0]?.id),
+            });
+          }
+        }}
+      >
+        {like ? <BsHeartFill /> : <BsHeart />}{" "}
+      </div>
+    );
+  } else if (session === "unauthenticated") {
+    likeGroup = (
+      <div
+        className={`${like ? "text-red-500" : ""}  `}
+        onClick={() => {
+          setLike((prev) => !prev);
+        }}
+      >
+        {like ? <BsHeartFill /> : <BsHeart />}{" "}
+      </div>
+    );
+  }
 
   if (UserImage?.match(new RegExp("^[https]"))) {
     pic = () => String(UserImage);
@@ -132,23 +170,8 @@ const Status = ({
               <div className="">9999</div>
             </div>
             <div className={`flex items-center gap-x-3`}>
-              <div
-                className={`${like ? "text-red-500" : ""}  `}
-                onClick={() => {
-                  if (!like) {
-                    likeStatus.mutate({
-                      statusId: id,
-                    });
-                  } else {
-                    dislikeStatus.mutate({
-                      id: String(likeData[0]?.id),
-                    });
-                  }
-                }}
-              >
-                {like ? <BsHeartFill /> : <BsHeart />}{" "}
-              </div>
-              <div className=" ">9999</div>
+              {likeGroup}
+              <div className=" ">{likeCount}</div>
             </div>
           </div>
         </div>
