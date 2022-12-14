@@ -20,6 +20,7 @@ interface Props {
   }[];
   session: string;
   likeCount: number;
+  replyCount: number;
   userId: string;
 }
 const Status = ({
@@ -35,6 +36,7 @@ const Status = ({
   likeData,
   session,
   likeCount,
+  replyCount,
 }: Props) => {
   let pic;
 
@@ -171,7 +173,7 @@ const Status = ({
               <div className="">
                 <BsChat />
               </div>
-              <div className="">9999</div>
+              <div className="">{replyCount}</div>
             </div>
             <div className={`flex items-center gap-x-3`}>
               {likeGroup}

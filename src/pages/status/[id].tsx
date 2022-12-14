@@ -9,6 +9,7 @@ import {
   BsHeartFill,
   BsImage,
   BsThreeDotsVertical,
+  BsTrashFill,
   BsXLg,
 } from "react-icons/bs";
 import Loading from "../../../components/Loading";
@@ -17,6 +18,8 @@ import { trpc } from "../../utils/trpc";
 import { v4 as uuidv4 } from "uuid";
 import { deleteStatusPic, uploadStatusPic } from "../../utils/image";
 import Link from "next/link";
+import Head from "next/head";
+import { formatDistanceToNow, parseISO } from "date-fns";
 
 const StatusPage = () => {
   const router = useRouter();
@@ -27,6 +30,9 @@ const StatusPage = () => {
     id: statusId as string,
   });
 
+  <Head>
+    <title>{`${data?.user.username}: ${data?.text}`}</title>
+  </Head>;
   const { data: session, status } = useSession();
 
   const [text, setText] = useState("");
@@ -38,6 +44,7 @@ const StatusPage = () => {
     }[]
   >([]);
   const [likeCount, setLikeCount] = useState<number>(0);
+  const [replyCount, setReplyCount] = useState<number>(0);
   const [image, setImage] = useState("");
   const [imageFile, setImageFile] = useState<File | undefined>();
   const image_name = uuidv4() + ".jpg";
@@ -45,6 +52,7 @@ const StatusPage = () => {
 
   const [command, setCommand] = useState("");
   const [isMounted, setIsMounted] = useState(false);
+  const [replyMode, setReplyMode] = useState(false);
   const [show, setShow] = useState(true);
   const [modalHidden, setModalHidden] = useState(true);
   const id = useRouter().query.id;
@@ -91,6 +99,7 @@ const StatusPage = () => {
         Boolean(data.like.filter((s) => s.userId === session?.user?.id).length)
       );
       setLikeCount(data.like.length);
+      setReplyCount(data.reply.length);
       if (data.image) {
         setImage(data.image);
       }
@@ -483,7 +492,8 @@ const StatusPage = () => {
             </p>
             <div className="flex flex-row items-center justify-start gap-x-9 border-t py-3">
               <div className="my-auto">
-                9999<span className="text-slate-500"> Reply</span>
+                {replyCount}
+                <span className="text-slate-500"> Reply</span>
               </div>
               <div className="my-auto">
                 {likeCount}
@@ -491,12 +501,24 @@ const StatusPage = () => {
               </div>
             </div>
             <div className="flex flex-row items-center justify-evenly border-y py-3 ">
-              <BsChat />
+              <div
+                className="cursor-pointer"
+                onClick={() => setReplyMode((prev) => !prev)}
+              >
+                <BsChat />
+              </div>
 
               {likeGroup}
             </div>
           </div>
         </div>
+        {replyMode && status === "authenticated" && (
+          <NewReply statusId={statusId} />
+        )}
+        <Replies
+          statusId={statusId}
+          sessionUserId={String(session?.user?.id)}
+        />
       </div>
     );
   }
@@ -504,3 +526,187 @@ const StatusPage = () => {
 };
 
 export default StatusPage;
+
+interface Props {
+  statusId: string;
+}
+const NewReply = ({ statusId }: Props) => {
+  const utils = trpc.useContext();
+  const [text, setText] = useState("");
+
+  const createReply = trpc.reply.createReply.useMutation({
+    onMutate: () => {
+      utils.reply.getAll.cancel();
+      const optimisticUpdate = utils.reply.getAll.getData({
+        statusId: statusId,
+      });
+      if (optimisticUpdate) {
+        utils.reply.getAll.setData(
+          {
+            statusId: statusId,
+          },
+          [...optimisticUpdate]
+        );
+      }
+    },
+    onSuccess: () => {
+      utils.reply.getAll.invalidate();
+      setText("");
+    },
+  });
+
+  return (
+    <div className="mx-3 mt-4 flex flex-col">
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          createReply.mutate({
+            text: String(text),
+            statusId: statusId,
+          });
+          setText("");
+        }}
+      >
+        <textarea
+          className="block w-full resize-none overflow-auto border-b bg-inherit  py-2.5 outline-0 ring-0"
+          placeholder="Write a reply"
+          value={text}
+          rows={4}
+          onChange={(e) => setText(e.target.value)}
+          required
+        ></textarea>
+        <div className="ml-3 mt-3 flex justify-between">
+          <button
+            type="submit"
+            className="my-auto ml-auto w-20 items-center rounded-full bg-blue-700 py-2 px-4 text-center font-medium text-white hover:bg-blue-800 focus:ring-4 focus:ring-blue-200 dark:focus:ring-blue-900"
+          >
+            Reply
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+};
+
+interface repliesProps {
+  statusId: string;
+  sessionUserId: string;
+}
+const Replies = ({ statusId, sessionUserId }: repliesProps) => {
+  const { data, isLoading } = trpc.reply.getAll.useQuery({
+    statusId: statusId,
+  });
+  if (isLoading) return <Loading />;
+  return (
+    <div className="mt-3">
+      {data?.map((reply) => (
+        <Reply
+          statusId={statusId}
+          key={reply.id}
+          id={reply.id}
+          name={reply.user.name}
+          text={reply.text}
+          username={reply.user.username}
+          UserImage={reply.user.image}
+          time={reply.createdAt.toISOString()}
+          sameUser={sessionUserId === reply.user.id}
+        />
+      ))}
+    </div>
+  );
+};
+
+interface replyProps {
+  id: string;
+  statusId: string;
+  sameUser: boolean;
+  name?: string | null;
+  username?: string | null;
+  UserImage?: string | null;
+  time?: string;
+  text?: string;
+}
+const Reply = ({
+  id,
+  name,
+  statusId,
+  sameUser,
+  username,
+  text,
+  time,
+  UserImage,
+}: replyProps) => {
+  let pic;
+  const utils = trpc.useContext();
+
+  const deleteReply = trpc.reply.deleteReply.useMutation({
+    onMutate: () => {
+      utils.reply.getAll.cancel();
+      const optimisticUpdate = utils.reply.getAll.getData({
+        statusId: statusId,
+      });
+
+      if (optimisticUpdate) {
+        utils.reply.getAll.setData(
+          { statusId: statusId },
+          optimisticUpdate.filter((c) => c.id !== id)
+        );
+      }
+    },
+  });
+
+  if (UserImage?.match(new RegExp("^[https]"))) {
+    pic = () => String(UserImage);
+  } else {
+    pic = () =>
+      String(
+        `https://wdbzaixlcvmtgkhjlkqx.supabase.co/storage/v1/object/public/cuapan-image/user/${UserImage}`
+      );
+  }
+  let timeAgo = "";
+  if (time) {
+    const date = parseISO(time);
+    const timePeriod = formatDistanceToNow(date);
+    timeAgo = `${timePeriod} ago`;
+  }
+  return (
+    <div className="flex h-auto w-full border-t border-slate-500 hover:bg-white/5">
+      <article className="mx-3 flex h-full w-full flex-row py-4">
+        <div className="h-12 w-12 flex-none rounded-full bg-blue-500">
+          <Image
+            src={pic()}
+            alt="profile pic"
+            loader={pic}
+            height={60}
+            width={60}
+            className="m-auto h-full w-full rounded-full object-cover"
+            loading="lazy"
+            unoptimized={true}
+          ></Image>
+        </div>
+        <div className="ml-3 flex flex-col">
+          <div className="flex items-center gap-x-3">
+            <span className=" mr-3 font-bold">{name}</span>
+            <span className="text-slate-500">@{username}</span>
+            <span className="text-slate-500">{timeAgo}</span>
+          </div>
+          <div className="flex flex-col">
+            <p className="break-all">{text}</p>
+          </div>
+        </div>
+        {sameUser && (
+          <div
+            className="ml-auto cursor-pointer"
+            onClick={() => {
+              deleteReply.mutate({
+                id: id,
+              });
+            }}
+          >
+            <BsTrashFill />
+          </div>
+        )}
+      </article>
+    </div>
+  );
+};

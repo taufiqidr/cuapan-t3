@@ -82,9 +82,8 @@ model Status {
 }
 
 model Reply {
-  id    String  @id @default(cuid())
-  text  String  @db.VarChar(240)
-  image String?
+  id   String @id @default(cuid())
+  text String @db.VarChar(240)
 
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)

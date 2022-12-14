@@ -15,6 +15,7 @@ import {
   uploadCoverPic,
   uploadPic,
 } from "../../utils/image";
+import Head from "next/head";
 
 const UserPage = () => {
   const [userId, setUserId] = useState("");
@@ -26,6 +27,9 @@ const UserPage = () => {
     id: userId as string,
   });
 
+  <Head>
+    <title>{data?.name}</title>
+  </Head>;
   useEffect(() => {
     if (id) setUserId(String(id));
   }, [id]);
@@ -89,6 +93,7 @@ const UserPage = () => {
                   (s) => s.userId === session?.user?.id
                 )}
                 likeCount={status.like.length}
+                replyCount={status.reply.length}
                 session={LoginStatus}
                 userId={status.user.id}
               />
@@ -119,6 +124,7 @@ const UserPage = () => {
                   (s) => s.userId === session?.user?.id
                 )}
                 likeCount={status.like.length}
+                replyCount={status.reply.length}
                 session={LoginStatus}
                 userId={status.user.id}
               />
@@ -129,6 +135,7 @@ const UserPage = () => {
       );
     }
   }, [media, data, LoginStatus, session?.user?.id]);
+
   const utils = trpc.useContext();
 
   const updateUser = trpc.user.updateUser.useMutation({
