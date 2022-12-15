@@ -1,4 +1,5 @@
 import { useSession } from "next-auth/react";
+import Head from "next/head";
 import Feed from "../../components/feed";
 import NewStatus from "../../components/new_status";
 
@@ -6,6 +7,9 @@ const Home = () => {
   const { status } = useSession();
   return (
     <div>
+      <Head>
+        <title>Cuapan</title>
+      </Head>
       <h2 className="mt-1 ml-3 hidden items-center gap-x-3 py-1  text-3xl font-semibold sm:flex">
         Home
       </h2>
