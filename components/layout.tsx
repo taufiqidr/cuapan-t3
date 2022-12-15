@@ -1,5 +1,7 @@
 import { useSession } from "next-auth/react";
 import React from "react";
+import Footer from "./Footer";
+import NavBar from "./navbar";
 import SidebarLeft from "./sidebarLeft";
 import SidebarRight from "./sidebarRight";
 
@@ -8,11 +10,13 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   const { data: session } = useSession();
 
   return (
-    <div className="mx-10 flex flex-row justify-between">
+    <div className="flex flex-col justify-between sm:mx-10 sm:flex-row">
       <SidebarLeft session={session} />
-      <main className="min-h-screen w-6/12 border-x border-slate-500">
+      <NavBar session={session} />
+      <main className="min-h-screen border-slate-500 sm:w-6/12 sm:border-x">
         {children}
       </main>
+      <Footer />
       <SidebarRight />
     </div>
   );

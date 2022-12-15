@@ -61,7 +61,7 @@ const SidebarLeft = ({ session }: Props) => {
     );
   }
   return (
-    <div className="sticky top-0 h-screen w-3/12">
+    <div className="sticky top-0 hidden h-screen sm:flex sm:w-3/12 ">
       <div className="mx-auto flex h-full w-11/12 flex-col ">
         <h1 className="mt-1 flex items-center gap-x-3  py-2 text-3xl">
           <BsMegaphoneFill />

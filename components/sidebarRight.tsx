@@ -32,7 +32,7 @@ const SidebarRight = () => {
     }
   };
   return (
-    <div className="sticky top-0 h-screen w-3/12">
+    <div className="sticky top-0 hidden h-screen sm:flex sm:w-3/12">
       <div className="mx-auto mt-2 flex w-11/12 flex-col ">
         <label
           htmlFor="search"

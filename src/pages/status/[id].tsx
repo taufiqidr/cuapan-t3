@@ -30,9 +30,6 @@ const StatusPage = () => {
     id: statusId as string,
   });
 
-  <Head>
-    <title>{`${data?.user.username}: ${data?.text}`}</title>
-  </Head>;
   const { data: session, status } = useSession();
 
   const [text, setText] = useState("");
@@ -56,6 +53,14 @@ const StatusPage = () => {
   const [show, setShow] = useState(true);
   const [modalHidden, setModalHidden] = useState(true);
   const id = useRouter().query.id;
+
+  useEffect(() => {
+    if (!modalHidden) {
+      document.body.classList.add("overflow-hidden");
+    } else {
+      document.body.classList.remove("overflow-hidden");
+    }
+  }, [modalHidden]);
 
   const utils = trpc.useContext();
 
@@ -198,7 +203,7 @@ const StatusPage = () => {
 
   if (command === "edit") {
     modalContent = (
-      <div className="relative m-auto h-5/6 w-1/2 rounded-lg bg-white shadow dark:bg-black">
+      <div className="relative m-auto h-5/6 w-full bg-white shadow dark:bg-black sm:w-1/2 sm:rounded-lg">
         <div className="m-5 flex flex-col ">
           <div className="item-center mb-3 flex justify-between">
             <h3 className="text-xl font-medium text-gray-900 dark:text-white">
@@ -253,7 +258,7 @@ const StatusPage = () => {
               </label>
               <textarea
                 id="text"
-                className="block w-full resize-none rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                className="block w-full resize-none rounded-lg border border-gray-300 bg-gray-50 p-2.5  text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                 placeholder="Edit this status"
                 value={text}
                 onChange={(e) => setText(e.target.value)}
@@ -324,7 +329,7 @@ const StatusPage = () => {
     );
   } else if (command === "delete") {
     modalContent = (
-      <div className="relative m-auto h-auto w-1/3 rounded-lg bg-white shadow dark:bg-black">
+      <div className="relative m-auto h-auto w-11/12 rounded-lg bg-white shadow dark:bg-black sm:w-1/3">
         <div className="m-5 flex flex-col ">
           <div className="item-center mb-3 flex justify-between">
             <h3 className="text-xl font-medium text-gray-900 dark:text-white">
@@ -381,17 +386,20 @@ const StatusPage = () => {
 
   if (isSuccess) {
     content = (
-      <div className="mt-1 flex flex-col py-1 ">
+      <div className="flex flex-col pb-1 sm:mt-1 ">
+        <Head>
+          <title>{`${data?.user.username}: ${data?.text}`}</title>
+        </Head>
         <div
           id="modal-container"
           aria-hidden="true"
-          className={`fixed inset-0 z-50 bg-white/50 backdrop-blur-sm ${
+          className={`fixed inset-0 z-50 bg-black/50 backdrop-blur-sm ${
             modalHidden ? "hidden" : "flex"
           }`}
         >
           {modalContent}
         </div>
-        <div className="mx-3 flex flex-row text-3xl font-semibold">
+        <div className="mx-3 hidden flex-row text-3xl font-semibold sm:flex">
           <div
             className="flex cursor-pointer flex-row items-center hover:text-blue-500"
             onClick={() => router.back()}
@@ -568,7 +576,7 @@ const NewReply = ({ statusId }: Props) => {
         }}
       >
         <textarea
-          className="block w-full resize-none overflow-auto border-b bg-inherit  py-2.5 outline-0 ring-0"
+          className="block w-full resize-none overflow-auto border-b bg-inherit py-2.5 outline-0 ring-0"
           placeholder="Write a reply"
           value={text}
           rows={4}
@@ -685,7 +693,7 @@ const Reply = ({
           ></Image>
         </div>
         <div className="ml-3 flex flex-col">
-          <div className="flex items-center gap-x-3">
+          <div className="flex items-start gap-x-3">
             <span className=" mr-3 font-bold">{name}</span>
             <span className="text-slate-500">@{username}</span>
             <span className="text-slate-500">{timeAgo}</span>

@@ -6,7 +6,7 @@ const Home = () => {
   const { status } = useSession();
   return (
     <div>
-      <h2 className="mt-1 ml-3 flex items-center gap-x-3  py-1 text-3xl font-semibold">
+      <h2 className="mt-1 ml-3 hidden items-center gap-x-3 py-1  text-3xl font-semibold sm:flex">
         Home
       </h2>
       {status === "authenticated" && <NewStatus />}

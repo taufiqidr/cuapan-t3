@@ -27,9 +27,6 @@ const UserPage = () => {
     id: userId as string,
   });
 
-  <Head>
-    <title>{data?.name}</title>
-  </Head>;
   useEffect(() => {
     if (id) setUserId(String(id));
   }, [id]);
@@ -205,15 +202,18 @@ const UserPage = () => {
   }
 
   return (
-    <div className={`mt-1 flex flex-col `}>
+    <div className={`flex flex-col sm:mt-1 `}>
+      <Head>
+        <title>{data?.name}</title>
+      </Head>
       <div
         id="modal-container"
         aria-hidden="true"
-        className={`fixed inset-0 z-50 bg-white/50 backdrop-blur-sm ${
+        className={`fixed inset-0 z-50 bg-black/50 backdrop-blur-sm ${
           modalHidden ? "hidden" : "flex"
         }`}
       >
-        <div className="relative m-auto h-5/6 w-1/2 overflow-y-scroll rounded-lg bg-white shadow dark:bg-black">
+        <div className="relative m-auto h-5/6 w-full overflow-y-scroll bg-white shadow dark:bg-black sm:w-1/2 sm:rounded-lg">
           <div className="m-5 flex flex-col ">
             <div className="item-center mb-3 flex justify-between">
               <h3 className="text-xl font-medium text-gray-900 dark:text-white">
@@ -389,7 +389,7 @@ const UserPage = () => {
         </div>
       </div>
 
-      <div className="z-20 mb-3 flex flex-row  text-3xl font-semibold">
+      <div className="z-20 mb-3 hidden flex-row text-3xl font-semibold sm:flex">
         <div
           className="ml-3 flex cursor-pointer flex-row items-center hover:text-blue-500"
           onClick={() => router.back()}
@@ -425,7 +425,7 @@ const UserPage = () => {
           </button>
         )}
 
-        <div className="absolute ml-3 mt-44 flex h-32 w-32 items-center justify-center rounded-full bg-white">
+        <div className="ml-3 -mt-28 flex h-32 w-32 items-center justify-center rounded-full bg-white">
           <Image
             src={pic()}
             alt="profile pic"

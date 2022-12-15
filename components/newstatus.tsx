@@ -31,7 +31,7 @@ const NewStatus = () => {
   });
 
   return (
-    <div className="mx-3 mt-4 flex flex-col">
+    <div className="mx-3 flex flex-col sm:mt-4">
       <form
         onSubmit={(event) => {
           event.preventDefault();
@@ -83,7 +83,7 @@ const NewStatus = () => {
               htmlFor="file_input"
               className="flex items-center justify-center"
             >
-              <div className="absolute flex cursor-pointer items-center justify-center">
+              <div className=" flex cursor-pointer items-center justify-center">
                 <BsImage />
               </div>
               <input
