@@ -4,10 +4,10 @@ import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { BsArrowLeft, BsCameraFill } from "react-icons/bs";
 import Loading from "../../../components/Loading";
-import NotFound from "../../../components/notFound";
+import NotFound from "../../../components/not_found";
 import { trpc } from "../../utils/trpc";
 import { v4 as uuidv4 } from "uuid";
-import NewStatus from "../../../components/newStatus";
+import NewStatus from "../../../components/new_status";
 import Status from "../../../components/status";
 import {
   deleteCoverPic,

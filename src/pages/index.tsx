@@ -1,6 +1,6 @@
 import { useSession } from "next-auth/react";
 import Feed from "../../components/feed";
-import NewStatus from "../../components/newStatus";
+import NewStatus from "../../components/new_status";
 
 const Home = () => {
   const { status } = useSession();

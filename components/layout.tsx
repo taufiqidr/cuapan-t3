@@ -1,9 +1,9 @@
 import { useSession } from "next-auth/react";
 import React from "react";
-import Footer from "./Footer";
+import Footer from "./footer";
 import NavBar from "./navbar";
-import SidebarLeft from "./sidebarLeft";
-import SidebarRight from "./sidebarRight";
+import SidebarLeft from "./sidebar_left";
+import SidebarRight from "./sidebar_right";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   // const { data: session } = useSession();
