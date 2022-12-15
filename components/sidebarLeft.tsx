@@ -1,15 +1,23 @@
 import React, { useState } from "react";
-import { BsMegaphoneFill, BsHouseFill, BsPersonFill } from "react-icons/bs";
+import {
+  BsMegaphoneFill,
+  BsHouseFill,
+  BsPersonFill,
+  BsHouse,
+  BsPerson,
+} from "react-icons/bs";
 import { signIn, signOut } from "next-auth/react";
 
 import { type Session } from "next-auth";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/router";
 interface Props {
   session: Session | null | undefined;
 }
 const SidebarLeft = ({ session }: Props) => {
   const [show, setShow] = useState(true);
+  const { pathname } = useRouter();
 
   let user_menu, pic;
   if (session?.user?.image?.match(new RegExp("^[https]"))) {
@@ -22,7 +30,7 @@ const SidebarLeft = ({ session }: Props) => {
   }
   if (session) {
     user_menu = (
-      <div className="mt-auto mb-3 flex h-14 w-full cursor-pointer items-center rounded-full border border-slate-500 hover:bg-slate-700 ">
+      <div className="mt-auto mb-3 flex h-14 w-full cursor-pointer items-center rounded-full border hover:bg-black/5 dark:border-slate-500 dark:hover:bg-white/5">
         <div
           className="ml-5 flex h-full w-full cursor-pointer flex-row items-center rounded-full"
           onClick={() => setShow((prev) => !prev)}
@@ -68,23 +76,26 @@ const SidebarLeft = ({ session }: Props) => {
         </h1>
         <div className="mt-4 w-full text-2xl font-semibold">
           <Link href={"/"}>
-            <div className="w-full cursor-pointer rounded-full py-2 pl-5 hover:bg-slate-700">
+            <div className="w-full cursor-pointer rounded-full py-2 pl-5 hover:bg-black/5 dark:hover:bg-white/5">
               <span className="my-auto flex items-center gap-x-3">
-                <BsHouseFill /> Home
+                {pathname === "/" ? <BsHouseFill /> : <BsHouse />} Home
               </span>
             </div>
           </Link>
-          <Link href={session?.user?.id ? "/user/" + session?.user?.id : "/"}>
-            <div className="w-full cursor-pointer rounded-full py-2 pl-5 hover:bg-slate-700">
-              <span className="my-auto flex items-center gap-x-3">
-                <BsPersonFill /> Profile
-              </span>
-            </div>
-          </Link>
+          {session?.user?.id && (
+            <Link href={"/user/" + session?.user?.id}>
+              <div className="w-full cursor-pointer rounded-full py-2 pl-5 hover:bg-black/5 dark:hover:bg-white/5">
+                <span className="my-auto flex items-center gap-x-3">
+                  {pathname === "/user/[id]" ? <BsPersonFill /> : <BsPerson />}{" "}
+                  Profile
+                </span>
+              </div>
+            </Link>
+          )}
         </div>
         <div className="mt-auto flex flex-col justify-end">
           <div
-            className="z-10 mx-auto mb-3 w-56 origin-bottom rounded-md bg-gray-800 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+            className="z-10 mx-auto mb-3 w-56 origin-bottom rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
             role="menu"
             hidden={show}
             onMouseLeave={() => setShow(true)}
@@ -94,8 +105,8 @@ const SidebarLeft = ({ session }: Props) => {
           >
             <div className="py-1" role="none">
               <Link
-                href="/me"
-                className="block bg-slate-500 px-4 py-2 text-sm font-bold hover:bg-slate-600"
+                href={`/user/${session?.user?.id}`}
+                className="block  px-4 py-2 text-sm font-bold hover:text-blue-500"
                 role="menuitem"
                 tabIndex={-1}
                 id="menu-item-0"

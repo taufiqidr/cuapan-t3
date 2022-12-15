@@ -121,7 +121,7 @@ const Status = ({
     timeAgo = `${timePeriod} ago`;
   }
   return (
-    <div className="flex h-auto w-full border-t border-slate-500 hover:bg-white/5">
+    <div className="flex h-auto w-full border-t hover:bg-black/5 dark:border-slate-500 dark:hover:bg-white/5">
       <article className="mx-3 flex h-full w-full flex-row py-2">
         <div className="h-12 w-12 flex-none rounded-full bg-blue-500">
           <Link href={"/user/" + userId}>

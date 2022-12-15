@@ -13,7 +13,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     <div className="flex flex-col justify-between sm:mx-10 sm:flex-row">
       <SidebarLeft session={session} />
       <NavBar session={session} />
-      <main className="min-h-screen border-slate-500 sm:w-6/12 sm:border-x">
+      <main className="min-h-screen dark:border-slate-500 sm:w-6/12 sm:border-x">
         {children}
       </main>
       <Footer />

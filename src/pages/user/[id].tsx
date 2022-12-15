@@ -451,19 +451,19 @@ const UserPage = () => {
           </div>
         </div>
       </div>
-      <div className="mx-3 flex flex-row justify-between border-b">
+      <div className="mx-3 flex flex-row justify-between">
         <div
           className={`${
-            !media ? "bg-white/20" : ""
-          } w-full cursor-pointer py-3 text-center hover:bg-white/50`}
+            !media ? "border-b-2 border-blue-500 " : ""
+          } w-full cursor-pointer py-3 text-center hover:bg-black/5 hover:dark:bg-white/5`}
           onClick={() => setMedia(false)}
         >
           Status
         </div>
         <div
           className={`${
-            media ? "bg-white/20" : ""
-          } w-full cursor-pointer py-3 text-center hover:bg-white/50`}
+            media ? "border-b-2 border-blue-500 " : ""
+          } w-full cursor-pointer py-3 text-center hover:bg-black/5 hover:dark:bg-white/5`}
           onClick={() => setMedia(true)}
         >
           Media

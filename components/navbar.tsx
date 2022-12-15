@@ -138,7 +138,7 @@ const NavBar = ({ session }: Props) => {
   }
 
   return (
-    <div className="item-center sticky top-0 flex justify-between border-b border-slate-500 bg-gray-50 p-3 dark:bg-black sm:hidden">
+    <div className="item-center sticky top-0 flex justify-between border-b bg-white p-3 dark:border-slate-500 dark:bg-black sm:hidden">
       <div>
         <div className="flex w-full cursor-pointer items-center justify-between rounded-full ">
           <div
