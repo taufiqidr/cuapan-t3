@@ -389,7 +389,7 @@ const UserPage = () => {
         </div>
       </div>
 
-      <div className="z-20 mb-3 hidden flex-row text-3xl font-semibold sm:flex">
+      <div className="mb-3 flex flex-row text-xl font-semibold sm:text-3xl ">
         <div
           className="ml-3 flex cursor-pointer flex-row items-center hover:text-blue-500"
           onClick={() => router.back()}
@@ -425,7 +425,7 @@ const UserPage = () => {
           </button>
         )}
 
-        <div className="ml-3 -mt-28 flex h-32 w-32 items-center justify-center rounded-full bg-white">
+        <div className="ml-3 -mt-16 flex h-32 w-32 items-center justify-center rounded-full bg-white">
           <Image
             src={pic()}
             alt="profile pic"

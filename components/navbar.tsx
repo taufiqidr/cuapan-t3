@@ -107,7 +107,7 @@ const NavBar = ({ session }: Props) => {
     );
     user_menu = (
       <div
-        className="w-full py-2 font-bold"
+        className="w-full border-t py-2 font-bold"
         onClick={() => {
           setShow(false);
           signOut();
@@ -121,7 +121,7 @@ const NavBar = ({ session }: Props) => {
   } else {
     user_nav = (
       <div className="flex w-full cursor-pointer flex-col">
-        <div className="h-8 w-8 rounded-full"></div>
+        <div className="h-8 w-8 rounded-full bg-slate-500"></div>
         <div className="mt-3 flex flex-col">
           <span className=" font-bold">Not Logged in</span>
         </div>
@@ -145,7 +145,9 @@ const NavBar = ({ session }: Props) => {
             className="flex h-full w-full cursor-pointer items-center rounded-full"
             onClick={() => setShow(true)}
           >
-            <div className="h-8 w-8 flex-none rounded-full ">{user_image}</div>
+            <div className="h-8 w-8 flex-none rounded-full bg-slate-500">
+              {user_image}
+            </div>
           </div>
         </div>
         <div
@@ -180,7 +182,7 @@ const NavBar = ({ session }: Props) => {
                 <span className="sr-only">Close modal</span>
               </button>
             </div>
-            <div className="m-3 mt-auto mb-14  flex border-t">{user_menu}</div>
+            <div className="m-3 mt-auto mb-14  flex">{user_menu}</div>
           </div>
         </div>
       </div>

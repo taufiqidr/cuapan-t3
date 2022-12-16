@@ -399,9 +399,9 @@ const StatusPage = () => {
         >
           {modalContent}
         </div>
-        <div className="mx-3 hidden flex-row text-3xl font-semibold sm:flex">
+        <div className="mx-3 flex flex-row text-xl sm:text-3xl">
           <div
-            className="flex cursor-pointer flex-row items-center hover:text-blue-500"
+            className="flex cursor-pointer flex-row items-center font-extrabold hover:text-blue-500"
             onClick={() => router.back()}
           >
             <BsArrowLeft />
