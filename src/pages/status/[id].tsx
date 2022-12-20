@@ -42,7 +42,7 @@ const StatusPage = () => {
   >([]);
   const [likeCount, setLikeCount] = useState<number>(0);
   const [replyCount, setReplyCount] = useState<number>(0);
-  const [image, setImage] = useState("");
+  const [image, setImage] = useState<string | null>("");
   const [imageFile, setImageFile] = useState<File | undefined>();
   const image_name = uuidv4() + ".jpg";
   const old_image = data?.image;
@@ -105,9 +105,8 @@ const StatusPage = () => {
       );
       setLikeCount(data.like.length);
       setReplyCount(data.reply.length);
-      if (data.image) {
-        setImage(data.image);
-      }
+
+      setImage(data.image);
     }
   }, [data, session?.user?.id]);
 
@@ -191,7 +190,7 @@ const StatusPage = () => {
       );
   }
 
-  if (image) {
+  if (Boolean(image) !== false) {
     statusPic = () =>
       String(
         `https://wdbzaixlcvmtgkhjlkqx.supabase.co/storage/v1/object/public/cuapan-image/status/${image}`

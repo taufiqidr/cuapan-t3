@@ -416,14 +416,6 @@ const UserPage = () => {
             ></Image>
           </div>
         </div>
-        {session?.user?.id === data?.id && (
-          <button
-            onClick={() => setModalHidden(false)}
-            className="mt-3 ml-auto mr-3 rounded-full  py-2 px-8 text-center font-medium ring-1 hover:bg-white/5 dark:text-white"
-          >
-            Edit Profile
-          </button>
-        )}
 
         <div className="ml-3 -mt-16 flex h-32 w-32 items-center justify-center rounded-full bg-white">
           <Image
@@ -437,6 +429,14 @@ const UserPage = () => {
             unoptimized={true}
           ></Image>
         </div>
+        {session?.user?.id === data?.id && (
+          <button
+            onClick={() => setModalHidden(false)}
+            className="-mt-14 ml-auto mr-3 rounded-full py-2 px-8 text-center font-medium ring-1 hover:bg-white/5 dark:text-white"
+          >
+            Edit Profile
+          </button>
+        )}
       </div>
       <div className="mx-3 flex flex-col">
         <h1 className="text-2xl font-bold">{data.name}</h1>

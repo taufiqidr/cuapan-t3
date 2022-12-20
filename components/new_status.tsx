@@ -4,11 +4,11 @@ import { uploadStatusPic } from "../src/utils/image";
 import { trpc } from "../src/utils/trpc";
 import { v4 as uuidv4 } from "uuid";
 import { BsImage, BsXLg } from "react-icons/bs";
-
+import { useSession } from "next-auth/react";
 const NewStatus = () => {
   const utils = trpc.useContext();
   const [text, setText] = useState("");
-
+  const { data: session } = useSession();
   const [imageFile, setImageFile] = useState<File | undefined>();
   const image_name = uuidv4() + ".jpg";
 
@@ -21,9 +21,30 @@ const NewStatus = () => {
       utils.status.getAll.cancel();
       const optimisticUpdate = utils.status.getAll.getData();
       if (optimisticUpdate) {
-        utils.status.getAll.setData(undefined, [...optimisticUpdate]);
+        utils.status.getAll.setData(undefined, [
+          {
+            id: Math.random().toString(),
+            text: text,
+            image: imageFile ? image_name : "",
+            like: [],
+            user: {
+              id: String(session?.user?.id),
+              image: String(session?.user?.image),
+              coverImage: String(),
+              email: String(session?.user?.email),
+              name: String(session?.user?.name),
+              username: String(session?.user?.username),
+              bio: String(),
+              emailVerified: new Date(),
+            },
+            reply: [],
+            createdAt: new Date(),
+          },
+          ...optimisticUpdate,
+        ]);
       }
     },
+
     onSuccess: () => {
       utils.status.getAll.invalidate();
       setImageFile(undefined);

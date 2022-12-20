@@ -38,7 +38,7 @@ const NavBar = ({ session }: Props) => {
     }
   };
   let user_menu, pic, user_image, user_nav;
-  const [show, setShow] = useState(true);
+  const [show, setShow] = useState(false);
 
   useEffect(() => {
     if (show) {
@@ -92,7 +92,9 @@ const NavBar = ({ session }: Props) => {
         </div>
         <div className="mt-3 flex flex-col">
           <span className=" font-bold">{session.user?.name}</span>
-          <span className=" text-sm text-slate-500">@username</span>
+          <span className=" text-sm text-slate-500">
+            {session.user?.username}
+          </span>
         </div>
         <div className="mt-10 flex border-t">
           <Link href={session?.user?.id ? "/user/" + session?.user?.id : "/"}>
